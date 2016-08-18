@@ -58,8 +58,8 @@ define(['jquery'], function($) {
 
                     // If only the width or height contains percentages then we can't use it and will have to fall back
                     // on the card size OR offsets.
-                    if (width.indexOf('%')>-1 && height.indexOf('%')==-1
-                        || width.indexOf('%')==-1 && height.indexOf('%')>-1
+                    if (width.indexOf('%') > -1 && height.indexOf('%') == -1
+                        || width.indexOf('%') == -1 && height.indexOf('%') > -1
                     ) {
                         if ($(this).parent().attr('data-card-width') && $(this).parent().attr('data-card-height')) {
                             width = $(this).parent().attr('data-card-width');
@@ -85,18 +85,18 @@ define(['jquery'], function($) {
 
                 // Get width again.
                 width = parseInt(this.offsetWidth);
-                // Set width;
+                // Set width.
                 var style = {width: '100%'};
                 $(this).css(style);
 
-                // Make sure parent has a padding element
+                // Make sure parent has a padding element.
                 if (!parent.find('.oembed-responsive-pad').length) {
                     var aspectPerc = aspectratio * 100;
                     var responsivePad = '<div class="oembed-responsive-pad" style="padding-top:' + aspectPerc + '%"></div>';
                     parent.append(responsivePad);
                 }
 
-                // Add responsive class to parent element
+                // Add responsive class to parent element.
                 parent.addClass('oembed-responsive');
             });
         };

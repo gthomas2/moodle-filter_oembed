@@ -35,12 +35,14 @@ define(['jquery'],
                     // Add auto play params.
                     // Because we are using a preloader we ideally want the content to play after clicking the preloader
                     // play button.
-                    var iframe = $($(data).find('iframe')[0]);
-                    var src = iframe.attr('src');
-                    var paramglue = src.indexOf('?') > -1 ? '&' : '?';
-                    src += paramglue + 'autoplay=1';
-                    src += '&' + 'auto_play=1';
-                    iframe.attr('src', src);
+                    if ($(data).find('iframe').length) {
+                        var iframe = $($(data).find('iframe')[0]);
+                        var src = iframe.attr('src');
+                        var paramglue = src.indexOf('?') > -1 ? '&' : '?';
+                        src += paramglue + 'autoplay=1';
+                        src += '&' + 'auto_play=1';
+                        iframe.attr('src', src);
+                    }
 
                     // Replace card with oembed html.
                     data.attr('data-card-width', cardwidth);
