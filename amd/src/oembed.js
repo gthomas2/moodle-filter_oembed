@@ -80,5 +80,3 @@ define(['jquery', 'filter_oembed/preloader', 'filter_oembed/responsivecontent'],
         };
     }
 );
-
-

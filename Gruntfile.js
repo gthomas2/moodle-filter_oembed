@@ -42,7 +42,7 @@ module.exports = function(grunt) {
         decachephp = '';
 
     decachephp += "define(\"CLI_SCRIPT\", true);";
-    decachephp += "require(" + configfile  + ");";
+    decachephp += "require(" + configfile + ");";
 
     // The previously used theme_reset_all_caches() stopped working for us, we investigated but couldn't figure out why.
     // Using purge_all_caches() is a bit of a nuclear option, as it clears more than we should need to
@@ -87,31 +87,31 @@ module.exports = function(grunt) {
             files : ["styles.css"]
         },
         autoprefixer: {
-          options: {
-            browsers: [
-              'Android 2.3',
-              'Android >= 4',
-              'Chrome >= 20',
-              'Firefox >= 24', // Firefox 24 is the latest ESR
-              'Explorer >= 9',
-              'iOS >= 6',
-              'Opera >= 12.1',
-              'Safari >= 6'
-            ]
-          },
-          core: {
             options: {
-              map: false
+                browsers: [
+                    'Android 2.3',
+                    'Android >= 4',
+                    'Chrome >= 20',
+                    'Firefox >= 24', // Firefox 24 is the latest ESR.
+                    'Explorer >= 9',
+                    'iOS >= 6',
+                    'Opera >= 12.1',
+                    'Safari >= 6'
+                ]
             },
-            src: ['styles.css'],
-          },
+            core: {
+                options: {
+                    map: false
+                },
+                src: ['styles.css'],
+            },
         },
         exec: {
             decache: {
                 cmd: "php -r '" + decachephp + "'",
                 callback: function(error, stdout, stderror) {
-                    // exec will output error messages
-                    // just add one to confirm success.
+                    // Exec will output error messages.
+                    // Just add one to confirm success.
                     if (!error) {
                         grunt.log.writeln("Moodle theme cache reset.");
                     }
