@@ -76,9 +76,11 @@ class base {
             $width = $dom->getElementsByTagName('iframe')->item(0)->getAttribute('width');
 
             $embedcode = '<a class="lvoembed lvvideo" data-embed="'.$embed.'"';
-            $embedcode .= 'href="#" data-height="'. $height .'" data-width="'. $width .'"><div class="filter_oembed_lazyvideo_container">';
+            $embedcode .= 'href="#" data-height="'. $height .'" data-width="'. $width .'">' .
+                '<div class="filter_oembed_lazyvideo_container">';
             $embedcode .= '<img class="filter_oembed_lazyvideo_placeholder" src="'.$json['thumbnail_url'].'" />';
-            $embedcode .= '<div class="filter_oembed_lazyvideo_title"><div class="filter_oembed_lazyvideo_text">'.$json['title'].'</div></div>';
+            $embedcode .= '<div class="filter_oembed_lazyvideo_title"><div class="filter_oembed_lazyvideo_text">' .
+                $json['title'].'</div></div>';
             $embedcode .= '<span class="filter_oembed_lazyvideo_playbutton"></span>';
             $embedcode .= '</div></a>';
         } else {

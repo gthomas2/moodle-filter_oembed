@@ -165,7 +165,8 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
         $oembed = testable_oembed::get_instance();
         $text = $oembed->html_output('https://www.youtube.com/watch?v=Dsws8T9_cEE');
         $this->assertContains('<div class="oembed-card-container">', $text);
-        $this->assertRegExp('/<div class="oembed-card" style="(?:.*)" data-embed="(?:.*)"(?:.*)data-aspect-ratio = "(?:.*)"(?:.*)>/is', $text);
+        $this->assertRegExp('/<div class="oembed-card" style="(?:.*)" data-embed="(?:.*)"(?:.*)' .
+            'data-aspect-ratio = "(?:.*)"(?:.*)>/is', $text);
         $this->assertRegExp('/<div class="oembed-card-title">(?:.*)<\/div>/', $text);
         $this->assertContains('<button class="btn btn-link oembed-card-play" aria-label="Play"></button>', $text);
 

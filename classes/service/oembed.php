@@ -365,7 +365,7 @@ class oembed {
                     $height = $jsonarr['height'];
                     $aspectratio = $this->get_aspect_ratio($width, $height);
                     if ($aspectratio === 0) {
-                        // Couldn't get a decent aspect ratio, let's go with 0.5625 (16:9)!
+                        // Couldn't get a decent aspect ratio, let's go with 0.5625 (16:9).
                         $aspectratio = 0.5625;
                     }
                 }

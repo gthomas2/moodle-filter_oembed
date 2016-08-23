@@ -17,7 +17,7 @@
 /**
  * Filter for component 'filter_oembed'
  *
- * @package   filter_embedrc
+ * @package   filter_oembed
  * @copyright Erich M. Wappis / Guy Thomas 2016
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * code based on the following filter

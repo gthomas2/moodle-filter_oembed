@@ -33,7 +33,7 @@ class filter_oembed_renderer extends plugin_renderer_base {
      * @return string
      */
     public function preload($embedhtml, array $json) {
-        $data = (object) $json;
+        $data = (object)$json;
         $data->embedhtml = $embedhtml; // Has some extra processing to what is available in $json['html'].
         return $this->render_from_template('filter_oembed/preload', $data);
     }

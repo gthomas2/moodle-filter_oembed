@@ -48,7 +48,8 @@ class officeforms extends base {
      * @return string Filtered text.
      */
     public function filter($text) {
-        $search = '/<a\s[^>]*href="(https?:\/\/(www\.)?)(forms\.office\.com)\/(.+?)\/(DesignPage\.aspx)#FormId=(.+?)"(.*?)>(.*?)<\/a>/is';
+        $search = '/<a\s[^>]*href="(https?:\/\/(www\.)?)(forms\.office\.com)\/' .
+            '(.+?)\/(DesignPage\.aspx)#FormId=(.+?)"(.*?)>(.*?)<\/a>/is';
         return preg_replace_callback($search, [$this, 'get_replacement'], $text);
     }
 
