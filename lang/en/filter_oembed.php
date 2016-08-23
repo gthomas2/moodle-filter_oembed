@@ -17,14 +17,14 @@
 /**
  * Filter for component 'filter_oembed'
  *
- * @package   filter_embedrc
+ * @package   filter_oembed
  * @copyright Erich M. Wappis / Guy Thomas 2016
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * code based on the following filter
  * oEmbed filter ( Mike Churchward, James McQuillan, Vinayak (Vin) Bhalerao, Josh Gavant and Rob Dolin)
  */
 
-$string['filtername'] = 'Embed Remote Content Filter';
+$string['filtername'] = 'Oembed Filter';
 $string['cachelifespan_disabled'] = 'Cache lifespan disabled';
 $string['cachelifespan'] = 'Cache lifespan';
 $string['cachelifespan_desc'] = 'The duration of time before the providers list should be refreshed.';
