@@ -74,7 +74,7 @@ class filter_oembed extends moodle_text_filter {
         }
 
         if (get_config('filter_oembed', 'targettag') == 'atag') {
-            $search = '/\<a\s[^\>]*href="(.*?)"(.*?)>(.*?)\<\/a\>/';
+            $search = '/\<a\s[^\>]*href="(.*?)"(?:.*?)>(?:.*?)\<\/a\>/is';
             $filtered = preg_replace_callback($search, function ($match) {
                 $instance = oembed::get_instance();
                 $result = $instance->html_output($match[1]);
