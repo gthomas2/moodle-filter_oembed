@@ -128,6 +128,9 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
      * Test cached providers.
      */
     public function test_get_cached_providers() {
+        $this->markTestIncomplete(
+            'This test is disabled until auto updating providers (safely) is implemented.'
+        );
         $this->resetAfterTest(true);
         $this->setAdminUser();
         $oembed = testable_oembed::get_instance();
@@ -137,16 +140,35 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
 
     /**
      * Test html.
+     * TODO - have a local oembed service with test fixtures for performing test.
      */
-    public function test_html() {
+    public function test_embed_html() {
         $this->resetAfterTest(true);
+        set_config('lazyload', 0, 'filter_oembed');
         $this->setAdminUser();
         $oembed = testable_oembed::get_instance();
         $text = $oembed->html_output('https://www.youtube.com/watch?v=Dsws8T9_cEE');
-        $expectedtext = '<iframe width="480" height="270"' .
+        $expectedtext = '<div class="oembed-content"><iframe width="480" height="270"' .
             ' src="https://www.youtube.com/embed/Dsws8T9_cEE?feature=oembed"' .
-            ' frameborder="0" allowfullscreen></iframe>';
+            ' frameborder="0" allowfullscreen></iframe></div>';
         $this->assertEquals($expectedtext, $text);
+    }
+
+    /**
+     * Test lazy load html.
+     * TODO - have a local oembed service with test fixtures for performing test.
+     */
+    public function test_preloader_html() {
+        $this->resetAfterTest(true);
+        set_config('lazyload', 1, 'filter_oembed');
+        $this->setAdminUser();
+        $oembed = testable_oembed::get_instance();
+        $text = $oembed->html_output('https://www.youtube.com/watch?v=Dsws8T9_cEE');
+        $this->assertContains('<div class="oembed-card-container">', $text);
+        $this->assertRegExp('/<div class="oembed-card" style="(?:.*)" data-embed="(?:.*)"(?:.*)data-aspect-ratio = "(?:.*)"(?:.*)>/is', $text);
+        $this->assertRegExp('/<div class="oembed-card-title">(?:.*)<\/div>/', $text);
+        $this->assertContains('<button class="btn btn-link oembed-card-play" aria-label="Play"></button>', $text);
+
     }
 }
 
