@@ -59,8 +59,7 @@ if ($ADMIN->fulltree) {
 
     $targettag = get_config('filter_oembed', 'targettag');
     if (!empty($config->providersrestrict)) {
-        $oembed = oembed::get_instance(); // We have to call this to cache the providers.
-//        $providers = json_decode($config->providerscached, true);
+        $oembed = oembed::get_instance();
         $providers = $oembed->providers;
         foreach ($providers as $provider) {
             $providersalloweddefault[$provider['provider_name']] = $provider['provider_name'];
