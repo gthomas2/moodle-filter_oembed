@@ -20,8 +20,12 @@
  * @package   filter_oembed
  * @copyright Erich M. Wappis / Guy Thomas 2016
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * code based on the following filter
- * oEmbed filter ( Mike Churchward, James McQuillan, Vinayak (Vin) Bhalerao, Josh Gavant and Rob Dolin)
+ * @author Mat Cannings
+ * @author James McQuillan
+ * @author Vin Bhalerao
+ * @author Erich M. Wappis <erich.wappis@uni-graz.at>
+ * @author Guy Thomas <brudinie@googlemail.com>
+ * @author Mike Churchward <mike.churchward@poetgroup.org>
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -65,33 +69,33 @@ class filter_oembed extends moodle_text_filter {
         }
 
         $filtered = $text; // We need to return the original value if regex fails!
-        if (get_config('filter_oembed', 'targettag') == 'divtag') {
+        if ($targettag == 'divtag') {
             $search = '/\<div\s[^\>]*data-oembed-href="(.*?)"(.*?)>(.*?)\<\/div\>/';
-            $filtered = preg_replace_callback($search, function ($match) {
-                $instance = oembed::get_instance();
-                return $instance->html_output($match[0]);
-            }, $filtered);
-        }
-
-        if (get_config('filter_oembed', 'targettag') == 'atag') {
+        } else { // if ($targettag == 'atag').
             $search = '/\<a\s[^\>]*href="(.*?)"(?:.*?)>(?:.*?)\<\/a\>/is';
-            $filtered = preg_replace_callback($search, function ($match) {
-                $instance = oembed::get_instance();
-                $result = $instance->html_output($match[1]);
-                if (empty($result)) {
-                    // This anchor does not contain an oembed url, return the original anchor html.
-                    $result = $match[0];
-                }
-                return $result;
-
-            }, $filtered);
         }
 
+        $filtered = preg_replace_callback($search, 'self::find_oembeds_callback', $filtered);
         if (empty($filtered)) {
             // If $filtered is emtpy return original $text.
             return $text;
+        } else {
+            return $filtered;
         }
+    }
 
-        return $filtered;
+    /**
+     * Callback function to be used by the main filter
+     *
+     * @param $match array An array of matched groups, where [1] is the URL matched.
+     *
+     */
+    private static function find_oembeds_callback($match) {
+        $instance = oembed::get_instance();
+        $result = $instance->html_output($match[1]);
+        if (empty($result)) {
+            $result = $match[0];
+        }
+        return $result;
     }
 }

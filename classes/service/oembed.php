@@ -22,6 +22,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace filter_oembed\service;
+use filter_oembed\provider\provider;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -47,16 +48,10 @@ class oembed {
     protected $providers = [];
 
     /**
-     * @var array
-     */
-    protected $sites = [];
-
-    /**
      * Constructor - protected singeton.
      */
     protected function __construct() {
         $this->set_providers();
-        $this->sites = $this->get_sites();
     }
 
     /**
@@ -134,7 +129,8 @@ class oembed {
 
         // NOTE: useremoteproviderslist is a setting that hasn't been added to settings.php yet. When added it will
         // default to 0 and will require enabling to make it acquire the remote providers list at http://oembed.com/.
-        if (empty($config->useremoteproviderslist)) {
+// Removing this for now, so cache is stored while developing.
+        if (false && empty($config->useremoteproviderslist)) {
             $providers = null;
         } else {
             $providers = $this->get_cached_providers();
@@ -153,7 +149,9 @@ class oembed {
             $providers = json_decode($ret, true);
         }
 
-        $this->providers = $providers;
+        foreach ($providers as $provider) {
+            $this->providers[] = new provider($provider);
+        }
 
         if (!empty($config->providersrestrict)) {
             if (!empty($config->providersallowed)) {
@@ -209,44 +207,48 @@ class oembed {
     }
 
     /**
-     * Check if the provided url matches any supported content providers
+     * Filter text - convert oembed divs and links into oembed code.
      *
-     * @return array
+     * @param string $text
+     * @return string
      */
-    protected function get_sites() {
+    public function html_output($text) {
+        $lazyload = get_config('filter_oembed', 'lazyload');
+        $lazyload = $lazyload == 1 || $lazyload === false;
+        $output = '';
 
-        $sites = [];
-        $config = get_config('filter_oembed');
+        // Loop through each provider, endpoint, and scheme. Exit when there is a match.
+        foreach ($this->providers as $provider) {
 
-        if (!empty($config->providersrestrict)) {
-            $providerlist = $this->providerswhitelisted;
-        } else {
-            $providerlist = $this->providers;
-        }
+            foreach ($provider->endpoints as $endpoint) {
+                // Check if schemes are definded for this provider.
+                // If not use the provider url for creating a regex.
+                if (!empty($endpoint->schemes)) {
+                    $regexarr = $this->create_regex_from_scheme($endpoint->schemes);
+                } else {
+                    $regexarr = $this->create_regex_from_scheme(array($provider->provider_url));
+                }
 
-        foreach ($providerlist as $provider) {
-            $providerurl = $provider['provider_url'];
-            $endpoints = $provider['endpoints'];
-            $endpointsarr = $endpoints[0];
-            $endpointurl = $endpointsarr['url'];
-            $endpointurl = str_replace('{format}', 'json', $endpointurl);
-
-            // Check if schemes are definded for this provider.
-            // If not take the provider url for creating a regex.
-            if (array_key_exists('schemes', $endpointsarr)) {
-                $regexschemes = $endpointsarr['schemes'];
-            } else {
-                $regexschemes = array($providerurl);
+                foreach ($regexarr as $regex) {
+                    if (preg_match($regex, $text)) {
+                        // If {format} is in the URL, replace it with the actual format.
+                        $url2 = '&format='.$endpoint->formats[0];
+                        $url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
+                               '?url='.$text.$url2;
+                        $jsonret = $this->oembed_curlcall($url);
+                        if (!$jsonret) {
+                            $output = '';
+                        } else if ($lazyload) {
+                            $output = $this->oembed_getpreloadhtml($jsonret);
+                        } else {
+                            $output = $this->oembed_gethtml($jsonret);
+                        }
+                        break 3; // Done, break out of all loops.
+                    }
+                }
             }
-
-            $sites[] = [
-                'provider_name' => $provider['provider_name'],
-                'regex'         => $this->create_regex_from_scheme($regexschemes),
-                'endpoint'      => $endpointurl
-            ];
-
         }
-        return $sites;
+        return $output;
     }
 
     /**
@@ -283,14 +285,8 @@ class oembed {
      * @return array
      */
     protected function oembed_curlcall($www) {
-
         $ret = download_file_content($www, null, null, true, 300, 20, false, null, false);
-
-        $this->providerurl = $www;
-        $this->providerjson = $ret->results;
-        $result = json_decode($ret->results, true);
-
-        return $result;
+        return json_decode($ret->results, true);
     }
 
     /**
@@ -302,7 +298,6 @@ class oembed {
      * @throws \coding_exception
      */
     protected function oembed_gethtml($jsonarr, $params = '') {
-
         if ($jsonarr === null) {
             $this->warnings[] = get_string('connection_error', 'filter_oembed');
             return '';
@@ -316,25 +311,6 @@ class oembed {
 
         $output = '<div class="oembed-content">' . $embed . '</div>'; // Wrapper for responsive processing.
         return $output;
-    }
-
-    /**
-     * Attempt to get aspect ratio from strings.
-     * @param string $width
-     * @param string $height
-     * @return float|int
-     */
-    protected function get_aspect_ratio($width, $height) {
-        $bothperc = strpos($height, '%') !== false && strpos($width, '%') !== false;
-        $neitherperc = strpos($height, '%') === false && strpos($width, '%') === false;
-        // If both height and width use percentages or both don't then we can calculate an aspect ratio.
-        if ($bothperc || $neitherperc) {
-            // Calculate aspect ratio.
-            $aspectratio = intval($height) / intval($width);
-        } else {
-            $aspectratio = 0;
-        }
-        return $aspectratio;
     }
 
     /**
@@ -358,12 +334,12 @@ class oembed {
         if ($dom->getElementsByTagName('iframe')->length > 0) {
             $width = $dom->getElementsByTagName('iframe')->item(0)->getAttribute('width');
             $height = $dom->getElementsByTagName('iframe')->item(0)->getAttribute('height');
-            $aspectratio = $this->get_aspect_ratio($width, $height);
+            $aspectratio = self::get_aspect_ratio($width, $height);
             if ($aspectratio === 0) {
                 if (isset($jsonarr['width']) && isset($jsonarr['height'])) {
                     $width = $jsonarr['width'];
                     $height = $jsonarr['height'];
-                    $aspectratio = $this->get_aspect_ratio($width, $height);
+                    $aspectratio = self::get_aspect_ratio($width, $height);
                     if ($aspectratio === 0) {
                         // Couldn't get a decent aspect ratio, let's go with 0.5625 (16:9).
                         $aspectratio = 0.5625;
@@ -379,48 +355,37 @@ class oembed {
     }
 
     /**
-     * Filter text - convert oembed divs and links into oembed code.
-     *
-     * @param string $text
-     * @return string
-     */
-    public function html_output($text) {
-        $lazyload = get_config('filter_oembed', 'lazyload');
-        $lazyload = $lazyload == 1 || $lazyload === false;
-
-        $url2 = '&format=json';
-        foreach ($this->sites as $site) {
-            foreach ($site['regex'] as $regex) {
-                if (preg_match($regex, $text)) {
-                    $url = $site['endpoint'].'?url='.$text.$url2;
-                    $jsonret = $this->oembed_curlcall($url);
-                    if (!$jsonret) {
-                        return '';
-                    }
-
-                    if ($lazyload) {
-                        return $this->oembed_getpreloadhtml($jsonret);
-                    } else {
-                        return $this->oembed_gethtml($jsonret);
-                    }
-                }
-            }
-        }
-        return '';
-    }
-
-    /**
      * Magic method for getting properties.
      * @param string $name
      * @return mixed
      * @throws \coding_exception
      */
     public function __get($name) {
-        $allowed = ['providers', 'warnings', 'sites'];
+        $allowed = ['providers', 'warnings'];
         if (in_array($name, $allowed)) {
             return $this->$name;
         } else {
             throw new \coding_exception($name.' is not a publicly accessible property of '.get_class($this));
         }
     }
+
+    /**
+     * Attempt to get aspect ratio from strings.
+     * @param string $width
+     * @param string $height
+     * @return float|int
+     */
+    protected static function get_aspect_ratio($width, $height) {
+        $bothperc = strpos($height, '%') !== false && strpos($width, '%') !== false;
+        $neitherperc = strpos($height, '%') === false && strpos($width, '%') === false;
+        // If both height and width use percentages or both don't then we can calculate an aspect ratio.
+        if ($bothperc || $neitherperc) {
+            // Calculate aspect ratio.
+            $aspectratio = intval($height) / intval($width);
+        } else {
+            $aspectratio = 0;
+        }
+        return $aspectratio;
+    }
+
 }
