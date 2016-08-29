@@ -118,55 +118,12 @@ class oembed {
     /**
      * Set providers property, retrieve from cache if possible.
      *
-     * @throws \Exception
-     * @throws \dml_exception
-     * @throws \moodle_exception
      */
     protected function set_providers() {
-        global $CFG;
-
-        $config = get_config('filter_oembed');
-
-        // NOTE: useremoteproviderslist is a setting that hasn't been added to settings.php yet. When added it will
-        // default to 0 and will require enabling to make it acquire the remote providers list at http://oembed.com/.
-// Removing this for now, so cache is stored while developing.
-        if (false && empty($config->useremoteproviderslist)) {
-            $providers = null;
-        } else {
-            $providers = $this->get_cached_providers();
-            if (empty($providers)) {
-                $providers = $this->download_providers();
-            }
-            if (empty($providers)) {
-                // OK - we couldn't retrieve the providers via curl, let's hope we have something cached that's usable.
-                $providers = $this->get_cached_providers(true);
-            }
-        }
-
-        if (empty($providers)) {
-            // Either remote providers not enabled or couldn't get anything via curl or from cache, use local static copy.
-            $ret = file_get_contents($CFG->dirroot.'/filter/oembed/providers.json');
-            $providers = json_decode($ret, true);
-        }
-
+        $providers = self::get_enabled_provider_data();
         foreach ($providers as $provider) {
+            $provider->endpoints = json_decode($provider->endpoints, true);
             $this->providers[] = new provider($provider);
-        }
-
-        if (!empty($config->providersrestrict)) {
-            if (!empty($config->providersallowed)) {
-                // We want to restrict the providers that are used.
-                $whitelist = explode(',', $config->providersallowed);
-                $wlist = array_filter($providers, function ($val) use ($whitelist) {
-                    if (in_array($val['provider_name'], $whitelist)) {
-                        return true;
-                    }
-                });
-                set_config('providerswhitelisted', $wlist, 'filter_oembed');
-                $this->providerswhitelisted = $wlist;
-            } else {
-                $this->providerswhitelisted = [];
-            }
         }
     }
 
@@ -388,4 +345,16 @@ class oembed {
         return $aspectratio;
     }
 
+    /**
+     * Get enabled provder data from the filter table and return in decode JSON format.
+     * Provider data is set when the plugin is installed, by scheduled tasks, by admin tools and
+     * by subplugins.
+     * @return array JSON decoded data.
+     */
+    protected static function get_enabled_provider_data() {
+        global $DB;
+
+        // Get providers from database. This includes sub-plugins.
+        return $DB->get_records('filter_oembed', array('enabled' => 1));
+    }
 }

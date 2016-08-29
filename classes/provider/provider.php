@@ -46,19 +46,16 @@ class provider {
 
     /**
      * Constructor.
-     * @param $data JSON decoded array containing all provider data.
+     * @param $data JSON decoded array or a data object containing all provider data.
      */
     public function __construct($data = null) {
-        if (is_array($data)) {
-            foreach ($data as $datum => $value) {
-                if ($datum == 'endpoints') {
-                    foreach ($value as $endpoint) {
-                        $this->endpoints[] = new endpoint($endpoint);
-                    }
-                } else {
-                    $this->$datum = $value;
-                }
-            }
+        if (is_object($data)) {
+            $data = (array)$data;
+        }
+        $this->provider_name = $data['provider_name'];
+        $this->provider_url = $data['provider_url'];
+        foreach ($data['endpoints'] as $endpoint) {
+            $this->endpoints[] = new endpoint($endpoint);
         }
     }
 
