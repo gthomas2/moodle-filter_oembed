@@ -25,12 +25,26 @@
  * Soundcloud (Troy Williams)
  */
 
+use filter_oembed\service\oembed;
 /**
  * Installs the OEmbed filter.
  */
 function xmldb_filter_oembed_install() {
-    global $CFG;
+    global $CFG, $DB;
 
     filter_set_global_state('filter/oembed', TEXTFILTER_ON);
+
+    $instance = oembed::get_instance();
+    foreach($instance->providers as $provider) {
+        $record = new stdClass();
+        $record->provider_name = $provider->provider_name;
+        $record->provider_url = $provider->provider_url;
+        $record->endpoints = $provider->endpoints_to_json();
+        $record->source = 'oembed.com/providers.json';
+        $record->enabled = 1;
+        $record->timecreated = time();
+        $record->timemodified = time();
+        $DB->insert_record('filter_oembed', $record);
+    }
 }
 
