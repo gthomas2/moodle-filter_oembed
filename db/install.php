@@ -34,17 +34,6 @@ function xmldb_filter_oembed_install() {
 
     filter_set_global_state('filter/oembed', TEXTFILTER_ON);
 
-    $instance = oembed::get_instance();
-    foreach($instance->providers as $provider) {
-        $record = new stdClass();
-        $record->provider_name = $provider->provider_name;
-        $record->provider_url = $provider->provider_url;
-        $record->endpoints = $provider->endpoints_to_json();
-        $record->source = 'oembed.com/providers.json';
-        $record->enabled = 1;
-        $record->timecreated = time();
-        $record->timemodified = time();
-        $DB->insert_record('filter_oembed', $record);
-    }
+    // Insert the initial data elements from the instance's providers.
+    oembed::update_provider_data();
 }
-

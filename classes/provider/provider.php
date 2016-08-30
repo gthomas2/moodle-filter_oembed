@@ -16,8 +16,6 @@
 
 /**
  * @package filter_oembed
- * @author Matthew Cannings
- * @author James McQuillan <james.mcquillan@remote-learner.net>
  * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright 2016 The POET Group
@@ -54,8 +52,17 @@ class provider {
         }
         $this->provider_name = $data['provider_name'];
         $this->provider_url = $data['provider_url'];
-        foreach ($data['endpoints'] as $endpoint) {
-            $this->endpoints[] = new endpoint($endpoint);
+
+        // If the endpoint data is a string, assume its a json encoded string.
+        if (is_string($data['endpoints'])) {
+            $data['endpoints'] = json_decode($data['endpoints'], true);
+        }
+        if (is_array($data['endpoints'])) {
+            foreach ($data['endpoints'] as $endpoint) {
+                $this->endpoints[] = new endpoint($endpoint);
+            }
+        } else {
+            throw new \coding_exception('"endpoint" data must be an array for '.get_class($this));
         }
     }
 

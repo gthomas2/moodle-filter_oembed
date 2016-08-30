@@ -19,6 +19,9 @@
  *
  * @package   filter_oembed
  * @copyright Erich M. Wappis / Guy Thomas 2016
+ * @author Erich M. Wappis <erich.wappis@uni-graz.at>
+ * @author Guy Thomas <brudinie@googlemail.com>
+ * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace filter_oembed\service;
@@ -70,97 +73,14 @@ class oembed {
     }
 
     /**
-     * Get cached providers
-     *
-     * @param bool $ignorelifespan
-     * @return bool|mixed
-     * @throws \Exception
-     * @throws \dml_exception
-     */
-    protected function get_cached_providers($ignorelifespan = false) {
-        $config = get_config('filter_oembed');
-
-        if (empty($config->cachelifespan )) {
-            // When unset or set to not cache.
-            $cachelifespan = 0;
-        } else if ($config->cachelifespan == '1') {
-            $cachelifespan = DAYSECS;
-        } else if ($config->cachelifespan == '2') {
-            $cachelifespan = WEEKSECS;
-        } else {
-            throw new \coding_exception('Unknown cachelifespan setting!', $config->cachelifespan);
-        }
-
-        // If config is present and cache fresh and available then use it.
-        if (!empty($config)) {
-            if (!empty($config->providerscachestamp) && !empty($config->providerscached)) {
-                $lastcached = intval($config->providerscachestamp);
-                if ($ignorelifespan || $lastcached > time() - $cachelifespan) {
-                    // Use cached providers.
-                    $providers = json_decode($config->providerscached, true);
-                    return $providers;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Cache provider json string.
-     *
-     * @param string $json
-     */
-    protected function cache_provider_json($json) {
-        set_config('providerscached', $json, 'filter_oembed');
-        set_config('providerscachestamp', time(), 'filter_oembed');
-    }
-
-    /**
-     * Set providers property, retrieve from cache if possible.
+     * Set providers property.
      *
      */
     protected function set_providers() {
         $providers = self::get_enabled_provider_data();
         foreach ($providers as $provider) {
-            $provider->endpoints = json_decode($provider->endpoints, true);
             $this->providers[] = new provider($provider);
         }
-    }
-
-    /**
-     * Get the latest provider list from http://oembed.com/providers.json
-     * If connection fails, take local list
-     *
-     * @return space array
-     */
-    protected function download_providers() {
-        $www = 'http://oembed.com/providers.json';
-
-        $timeout = 15;
-
-        $ret = download_file_content($www, null, null, true, $timeout, 20, false, null, false);
-
-        if ($ret->status == '200') {
-            $ret = $ret->results;
-        } else {
-            $this->warnings[] = 'Failed to load providers from '.$www;
-            return false;
-        }
-
-        $providers = json_decode($ret, true);
-
-        if (!is_array($providers)) {
-            $providers = false;
-        }
-
-        if (empty($providers)) {
-            throw new \moodle_exception('error:noproviders', 'filter_oembed', '');
-        }
-
-        // Cache provider json.
-        $this->cache_provider_json($ret);
-
-        return $providers;
     }
 
     /**
@@ -310,6 +230,128 @@ class oembed {
 
         return $renderer->preload($this->oembed_gethtml($jsonarr, $params), $jsonarr);
     }
+
+    // ---- PROVIDER DATA MANAGEMENT SECTION ----
+
+    /**
+     * Function to update provider data in database with current provider sources.
+     *
+     * @return string Any notification messages.
+     */
+    public static function update_provider_data() {
+        global $CFG, $DB;
+
+        $warnings = [];
+        // Is there any data currently at all?
+        if ($DB->count_records('filter_oembed') <= 0) {
+            // Initial load.
+            try {
+                self::create_initial_provider_data();
+            } catch (Exception $e) {
+                // Handle no initial data situation.
+                $warnings[] = $e->getMessage();
+                continue;
+            }
+        }
+        return $warnings;
+    }
+
+    /**
+     * Get the latest provider list from http://oembed.com/providers.json
+     *
+     * @return space array
+     */
+    protected static function download_providers() {
+        // Wondering if there is any reason to make this configurable?
+        $www = 'http://oembed.com/providers.json';
+
+        $timeout = 15;
+
+        $ret = download_file_content($www, null, null, true, $timeout, 20, false, null, false);
+
+        if ($ret->status == '200') {
+            $ret = $ret->results;
+        } else {
+            $ret = '';
+        }
+
+        $providers = json_decode($ret, true);
+
+        if (!is_array($providers)) {
+            $providers = false;
+        }
+
+        if (empty($providers)) {
+            throw new \moodle_exception('error:noproviders', 'filter_oembed', '');
+        }
+
+        return $providers;
+    }
+
+    /**
+     * Function to get providers from a local, static JSON file, for last resort action.
+     *
+     * @return space array
+     */
+    protected static function get_local_providers() {
+        global $CFG;
+
+        $ret = file_get_contents($CFG->dirroot.'/filter/oembed/providers.json');
+        return json_decode($ret, true);
+    }
+
+    /**
+     * Function to return a list of providers provided by the current sub plugins.
+     *
+     * @return space array
+     */
+    protected static function get_plugin_providers() {
+        // TODO - complete this function.
+        return [];
+    }
+
+    /**
+     * Create initial provider data from known provider sources.
+     *
+     */
+    protected static function create_initial_provider_data() {
+        global $CFG, $DB;
+
+        $warnings = [];
+        try {
+            $providers = self::download_providers();
+            $source = 'download::http://oembed.com/providers.json';
+        } catch (Exception $e) {
+            $warnings[] = $e->getMessage();
+            // If no providers were retrieved, get the local, static ones.
+            $providers = self::get_local_providers();
+            if (empty($providers)) {
+                throw new \moodle_exception('No initial provider data available. Oembed filter will not function properly.');
+            }
+            $source = 'local::'.$CFG->dirroot.'/filter/oembed/providers.json';
+            continue;
+        }
+
+        // Next, add the plugin providers that exist.
+        $providers = array_merge($providers, self::get_plugin_providers());
+
+        // Load each provider into the database.
+        foreach ($providers as $provider) {
+            $record = new \stdClass();
+            $record->provider_name = $provider['provider_name'];
+            $record->provider_url = $provider['provider_url'];
+            $record->endpoints = json_encode($provider['endpoints']);
+            $record->source = $source;
+            $record->enabled = 1;   // Enable everything by default.
+            $record->timecreated = time();
+            $record->timemodified = time();
+            $DB->insert_record('filter_oembed', $record);
+        }
+
+        return $warnings;
+    }
+
+    // ---- OTHER HELPER FUNCTIONS ----
 
     /**
      * Magic method for getting properties.

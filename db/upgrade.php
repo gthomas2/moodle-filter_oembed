@@ -25,6 +25,8 @@
  * Soundcloud (Troy Williams)
  */
 
+use filter_oembed\service\oembed;
+
 /**
  * Upgrades the OEmbed filter.
  *
@@ -64,17 +66,66 @@ function xmldb_filter_oembed_upgrade($oldversion) {
         }
 
         // Insert the initial data elements from the instance's providers.
-        $instance = oembed::get_instance();
-        foreach($instance->providers as $provider) {
-            $record = new stdClass();
-            $record->provider_name = $provider->provider_name;
-            $record->provider_url = $provider->provider_url;
-            $record->endpoints = $provider->endpoints_to_json();
-            $record->source = 'oembed.com/providers.json';
-            $record->enabled = 1;
-            $record->timecreated = time();
-            $record->timemodified = time();
-            $DB->insert_record('filter_oembed', $record);
+        oembed::update_provider_data();
+
+        // Migrate old settings to new settings. Ensure all old filters are still present.
+        $config = get_config('filter_oembed');
+        $providermap = [
+            'youtube' => ['YouTube', 'http://www.youtube.com', ['http://www.youtube.com/*'],
+                          'http://www.youtube.com/oembed'],
+            'vimeo' => ['Vimeo', 'http://vimeo.com', ['http://vimeo.com/*'], 'https://vimeo.com/api/omebed.json'],
+            'ted' => ['Ted', 'http://ted.com', ['http://ted.com/talks/*'], 'http://www.ted.com/talks/oembed.json'],
+            'slideshare' => ['SlideShare', 'http://www.slideshare.net',
+                             ['http://www.slideshare.net/*'], 'http://www.slideshare.net/api/oembed/2'],
+            'officemix' => ['Office Mix', 'http://mix.office.com', ['http://mix.office.com/*'],
+                            'https://mix.office.com/oembed'],
+            'issuu' => ['ISSUU', 'http://issuu.com', ['http://issuu.com/*'], 'http://issuu.com/oembed'],
+            'soundcloud' => ['SoundCloud', 'http://soundcloud.com', ['http://soundcloud.com/*'],
+                             'https://soundcloud.com/oembed'],
+            'pollev' => ['Poll Everywhere', 'http://polleverywhere.com',
+                         ['http://polleverywhere.com/polls/*', 'http://polleverywhere.com/multiple_choice_polls/*',
+                          'http://polleverywhere.com/free_text_polls/*'], 'http://www.polleverywhere.com/services/oembed'],
+            'o365video' => ['O365 Video', '', [''], ''],
+            'sway' => ['Sway', 'https://www,sway.com', ['http://www.sway.com/*'], 'https://sway.com/api/v1.0/oembed'],
+            'provider_docsdotcom_enabled' => ['Docs', '', [''], ''],
+            'provider_powerbi_enabled' => ['Power BI', '', [''], ''],
+            'provider_officeforms_enabled' => ['Office Forms', '', [''], '']
+        ];
+
+        foreach ($providermap as $oldprovider => $newprovider) {
+            $provider = $DB->get_record('filter_oembed', ['provider_name' => $newprovider[0]]);
+
+            // Look for originally hard-coded plugins. If still not present, create it from old code.
+            // If it is present, assume that it has since been added to the oembed repo and use that.
+            $insert = false;
+
+            if (empty($provider)) {
+                // Handle non-downloaded Oembed types.
+                $insert = true;
+                $provider = new stdClass();
+                $provider->provider_name = $newprovider[0];
+                $provider->provider_url = $newprovider[1];
+                $endpoints = [
+                    'schemes' => $newprovider[2],
+                    'url' => $newprovider[3],
+                ];
+                $provider->endpoints = json_encode($endpoints);
+                if (($oldprovider == 'provider_powerbi_enabled') || ($oldprovider == 'provider_officeforms_enabled') ||
+                    ($oldprovider == 'o365video')) {
+                    $provider->source = 'plugin::'.$oldprovider;
+                } else {
+                    $provider->source = 'local::oldoembed';
+                }
+                $provider->timecreated = time();
+            }
+            $provider->enabled = (!isset($config->$oldprovider) || empty($config->$oldprovider)) ? 0 : 1;
+            $provider->timemodified = time();
+            if ($insert) {
+                $DB->insert_record('filter_oembed', $provider);
+            } else {
+                $DB->update_record('filter_oembed', $provider);
+            }
+            unset_config($oldprovider, 'filter_oembed');
         }
 
         // Oembed savepoint reached.

@@ -16,8 +16,6 @@
 
 /**
  * @package filter_oembed
- * @author Matthew Cannings
- * @author James McQuillan <james.mcquillan@remote-learner.net>
  * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright 2016 The POET Group
@@ -51,13 +49,23 @@ class endpoint {
 
     /**
      * Constructor.
-     * @param $data JSON decoded array containing all endpoint data.
+     * @param $data JSON decoded array or data object containing all endpoint data.
      */
     public function __construct($data = null) {
-        if (is_array($data)) {
-            foreach ($data as $datum => $value) {
-                $this->$datum = $value;
-            }
+        if (is_object($data)) {
+            $data = (array)$data;
+        }
+        if (isset($data['schemes'])) {
+            $this->schemes = $data['schemes'];
+        }
+        if (isset($data['url'])) {
+            $this->url = $data['url'];
+        }
+        if (isset($data['discovery'])) {
+            $this->discovery = !empty($data['discovery']);
+        }
+        if (isset($data['formats'])) {
+            $this->formats = $data['formats'];
         }
     }
 
