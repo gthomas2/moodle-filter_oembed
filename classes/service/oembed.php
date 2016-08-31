@@ -273,7 +273,6 @@ class oembed {
             } catch (Exception $e) {
                 // Handle no initial data situation.
                 $warnings[] = $e->getMessage();
-                continue;
             }
         }
         return $warnings;
@@ -352,7 +351,6 @@ class oembed {
                 throw new \moodle_exception('No initial provider data available. Oembed filter will not function properly.');
             }
             $source = 'local::'.$CFG->dirroot.'/filter/oembed/providers.json';
-            continue;
         }
 
         // Next, add the plugin providers that exist.
