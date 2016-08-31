@@ -51,35 +51,58 @@ class oembed {
     protected $providers = [];
 
     /**
-     * Constructor - protected singeton.
+     * @var array Boolean array of provider id's enabled status.
      */
-    protected function __construct() {
-        $this->set_providers();
+    protected $enabled = [];
+
+    /**
+     * Constructor - protected singeton.
+     *
+     * @param string $providers Either 'enabled', 'disabled', or 'all'.
+     */
+    protected function __construct($providers = 'enabled') {
+        $this->set_providers($providers);
     }
 
     /**
      * Singleton
      *
+     * @param string $providers Either 'enabled', 'disabled', or 'all'.
      * @return oembed
      */
-    public static function get_instance() {
+    public static function get_instance($providers = 'enabled') {
         /** @var $instance oembed */
         static $instance;
         if ($instance) {
             return $instance;
         } else {
-            return new oembed();
+            return new oembed($providers);
         }
     }
 
     /**
      * Set providers property.
      *
+     * @param string $providers Either 'enabled', 'disabled', or 'all'.
      */
-    protected function set_providers() {
-        $providers = self::get_enabled_provider_data();
+    protected function set_providers($providers = 'enabled') {
+        switch ($providers) {
+            case 'enabled':
+                $providers = self::get_enabled_provider_data();
+                break;
+
+            case 'disabled':
+                $providers = self::get_disabled_provider_data();
+                break;
+
+            case 'all':
+            default:
+                $providers = self::get_all_provider_data();
+                break;
+        }
         foreach ($providers as $provider) {
-            $this->providers[] = new provider($provider);
+            $this->providers[$provider->id] = new provider($provider);
+            $this->enabled[$provider->id] = ($provider->enabled == 1);
         }
     }
 
@@ -360,12 +383,53 @@ class oembed {
      * @throws \coding_exception
      */
     public function __get($name) {
-        $allowed = ['providers', 'warnings'];
+        $allowed = ['providers', 'warnings', 'enabled'];
         if (in_array($name, $allowed)) {
             return $this->$name;
         } else {
             throw new \coding_exception($name.' is not a publicly accessible property of '.get_class($this));
         }
+    }
+
+    /**
+     * Set the provider to "enabled".
+     *
+     * @param int | provider The provider to enable.
+     */
+    public function enable_provider($provider) {
+        $this->set_provider_enable_value($provider, 1);
+    }
+
+    /**
+     * Set the provider to "disabled".
+     *
+     * @param int | provider The provider to disable.
+     */
+    public function disable_provider($provider) {
+        $this->set_provider_enable_value($provider, 0);
+    }
+
+    /**
+     * Set the provider enabled field to the specified value.
+     *
+     * @param int | object $provider The provider to modify.
+     * @param int $value Value to set.
+     */
+    private function set_provider_enable_value($provider, $value) {
+        global $DB;
+
+        if (is_object($provider)) {
+            $lookup = ['provider_name' => $provider->provider_name];
+            $pid = $DB->get_field('filter_oembed', 'id', $lookup);
+        } else if (is_int($provider)) {
+            $lookup = ['id' => $provider];
+            $pid = $provider;
+        } else {
+            throw new \coding_exception('oembed::enable_provider requires either a provider object or a data id integer.');
+        }
+
+        $DB->set_field('filter_oembed', 'enabled', $value, ['id' => $pid]);
+        $this->enabled[$pid] = ($value == 1);
     }
 
     /**
@@ -398,5 +462,31 @@ class oembed {
 
         // Get providers from database. This includes sub-plugins.
         return $DB->get_records('filter_oembed', array('enabled' => 1));
+    }
+
+    /**
+     * Get disabled provder data from the filter table and return in decode JSON format.
+     * Provider data is set when the plugin is installed, by scheduled tasks, by admin tools and
+     * by subplugins.
+     * @return array JSON decoded data.
+     */
+    protected static function get_disabled_provider_data() {
+        global $DB;
+
+        // Get providers from database. This includes sub-plugins.
+        return $DB->get_records('filter_oembed', array('enabled' => 0));
+    }
+
+    /**
+     * Get all provder data from the filter table and return in decode JSON format.
+     * Provider data is set when the plugin is installed, by scheduled tasks, by admin tools and
+     * by subplugins.
+     * @return array JSON decoded data.
+     */
+    protected static function get_all_provider_data() {
+        global $DB;
+
+        // Get providers from database. This includes sub-plugins.
+        return $DB->get_records('filter_oembed');
     }
 }
