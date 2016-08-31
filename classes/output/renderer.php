@@ -21,9 +21,11 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace filter_oembed\output;
+
 defined('MOODLE_INTERNAL') || die();
 
-class filter_oembed_renderer extends plugin_renderer_base {
+class renderer extends \plugin_renderer_base {
 
     /**
      * Pre loader HTML.
@@ -36,5 +38,15 @@ class filter_oembed_renderer extends plugin_renderer_base {
         $data = (object)$json;
         $data->embedhtml = $embedhtml; // Has some extra processing to what is available in $json['html'].
         return $this->render_from_template('filter_oembed/preload', $data);
+    }
+
+    /**
+     * Provider management page.
+     * @param \templateable $page
+     * @return string | boolean
+     */
+    public function render_managementpage($page) {
+        $data = $page->export_for_template($this);
+        return $this->render_from_template('filter_oembed/managementpage', $data);
     }
 }

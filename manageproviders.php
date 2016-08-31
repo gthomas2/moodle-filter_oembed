@@ -63,53 +63,46 @@ $PAGE->navbar->add(get_string('filter'));
 $PAGE->navbar->add(get_string('filtername', 'filter_oembed'));
 $PAGE->navbar->add(get_string('manageproviders', 'filter_oembed'), $baseurl);
 
-echo $OUTPUT->header();
+$output = $PAGE->get_renderer('filter_oembed');
+echo $output->header();
 
-$table = new flexible_table('oembed-display-providers');
+$headings = [get_string('provider', 'filter_oembed'), get_string('actions', 'moodle')];
+$rows = [];
 
-$table->define_columns(array('provider', 'actions'));
-$table->define_headers(array(get_string('provider', 'filter_oembed'), get_string('actions', 'moodle')));
-$table->define_baseurl($baseurl);
+foreach($oembed->providers as $prid => $provider) {
+    $row = [];
+    $row['pid'] = $prid;
+    $row['provider_name'] = s($provider->provider_name);
+    $row['provider_url'] = s($provider->provider_url);
+    $row['editaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=edit&pid=' . $prid . '&sesskey=' . sesskey();
 
-$table->set_attribute('cellspacing', '0');
-$table->set_attribute('id', 'oembedproviders');
-$table->set_attribute('class', 'generaltable generalbox');
-$table->column_class('provider', 'provider');
-$table->column_class('actions', 'actions');
-
-$table->setup();
-
-foreach($oembed->providers as $pid => $provider) {
-    $class = '';
-    $providertitle = s($provider->provider_name);
-
-    $viewlink = html_writer::link($provider->provider_url, $providertitle);
-
-/*    $feedinfo = '<div class="title">' . $viewlink . '</div>' .
-        '<div class="url">' . html_writer::link($feed->url, $feed->url) .'</div>' .
-        '<div class="description">' . $feed->description . '</div>'; */
-
-    $editurl = new moodle_url('/filter/oembed/manageproviders.php?action=edit&pid=' . $pid . '&sesskey=' . sesskey());
-    $editaction = $OUTPUT->action_icon($editurl, new pix_icon('t/edit', get_string('edit')));
-
-    if ($oembed->enabled[$pid]) {
-        $hideurl = new moodle_url('/filter/oembed/manageproviders.php?action=disable&pid=' . $pid . '&sesskey=' . sesskey());
-        $enableaction = $OUTPUT->action_icon($hideurl, new pix_icon('t/hide', get_string('hide')));
+    if ($oembed->enabled[$prid]) {
+        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=disable&pid=' . $prid . '&sesskey=' . sesskey();
+        $row['enabled'] = true;
     } else {
-        $showurl = new moodle_url('/filter/oembed/manageproviders.php?action=enable&pid=' . $pid . '&sesskey=' . sesskey());
-        $enableaction = $OUTPUT->action_icon($showurl, new pix_icon('t/show', get_string('show')));
-        $class = 'dimmed_text';
+        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=enable&pid=' . $prid . '&sesskey=' . sesskey();
+        $row['enabled'] = false;
     }
+    $row['deleteaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' . $prid . '&sesskey=' . sesskey();
 
-    $deleteurl = new moodle_url('/filter/oembed/manageproviders.php?action=delete&pid=' . $pid . '&sesskey=' . sesskey());
-    $deleteicon = new pix_icon('t/delete', get_string('delete'));
-    $deleteaction = $OUTPUT->action_icon($deleteurl, $deleteicon, new confirm_action(get_string('deleteproviderconfirm', 'filter_oembed')));
-
-    $providericons = $enableaction . ' ' . $editaction . ' ' . $deleteaction;
-
-    $table->add_data(array($viewlink, $providericons), $class);
+    // If edit requested, provide full provider data to the template.
+    if (($action = 'edit') && ($prid == $pid)) {
+        $row['editing'] = true;
+        $row['source'] = $DB->get_field('filter_oembed', 'source', ['id' => $pid]);
+        $endpoints = $provider->endpoints;
+        foreach ($endpoints as $endpoint) {
+            $row['schemes'] = $endpoint->schemes;
+            $row['url'] = isset($endpoint->url) ? $endpoint->url : '';
+            $row['discovery'] = isset($endpoint->discovery) ? $endpoint->discovery : '';
+            $row['formats'] = isset($endpoint->formats) ? (array)$endpoint->formats : [];
+        }
+    }
+    $rows[] = $row;
 }
 
-$table->print_html();
+//echo $output->render_index($headings, $align, $content);
+$managepage = new \filter_oembed\output\managementpage($headings, $rows);
+echo $output->render($managepage);
 
-echo $OUTPUT->footer();
+// Finish the page.
+echo $output->footer();

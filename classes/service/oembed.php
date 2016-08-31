@@ -221,7 +221,7 @@ class oembed {
      */
     protected function oembed_getpreloadhtml(array $jsonarr, $params = '') {
         global $PAGE;
-        /** @var \filter_oembed_renderer $renderer */
+        /** @var \filter_oembed\output\renderer $renderer */
         $renderer = $PAGE->get_renderer('filter_oembed');
 
         // To surpress the loadHTML Warnings.
