@@ -289,8 +289,8 @@ class oembed {
                 $name = $dir->getFilename();
                 if (($name != '.') && ($name != '..')) {
                     require_once($CFG->dirroot.'/filter/oembed/classes/provider/'.$name.'/'.$name.'.php');
-                    $name = "\\filter_oembed\\provider\\{$name}";
-                    $newplugin = new $name();
+                    $classname = "\\filter_oembed\\provider\\{$name}";
+                    $newplugin = new $classname();
                     $pluginproviders[] =array_merge($newplugin->implementation(), ['plugin' => $name]);
                 }
             }
@@ -344,6 +344,10 @@ class oembed {
             $record->enabled = 1;   // Enable everything by default.
             $record->timecreated = time();
             $record->timemodified = time();
+            if ($DB->record_exists('filter_oembed', ['provider_name' => $record->provider_name])) {
+                // If a provider already exists with this name, append the plugin name.
+                $record->provider_name .= ' (' . $record->source . ')';
+            }
             $DB->insert_record('filter_oembed', $record);
         }
 

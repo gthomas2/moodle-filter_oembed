@@ -97,10 +97,10 @@ class managementpage implements \renderable, \templatable {
             if (isset($row['editing']) && $row['editing']) {
                 $tmplrow['editing'] = 1;
                 $tmplrow['source'] = $row['source'];
-                $tmplrow['schemes'] = $row['schemes'];
-                $tmplrow['url'] = $row['url'];
-                $tmplrow['discovery'] = $row['discovery'];
-                $tmplrow['formats'] = $row['formats'];
+                $tmplrow['schemes'] = (isset($row['schemes']) ? $row['schemes'] : '');
+                $tmplrow['url'] = (isset($row['url']) ? $row['url'] : '');
+                $tmplrow['discovery'] = (isset($row['discovery']) ? $row['discovery'] : '');
+                $tmplrow['formats'] = (isset($row['formats']) ? $row['formats'] : '');
             } else {
                 $tmplrow['editing'] = 0;
             }
