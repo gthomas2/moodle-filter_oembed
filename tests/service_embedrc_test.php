@@ -45,13 +45,6 @@ class testable_oembed extends oembed {
     }
 
     /**
-     * Get sites.
-     * @return array
-     */
-    public function protected_get_sites() {
-        return $this->get_sites();
-    }
-    /**
      * Singleton.
      *
      * @return oembed
@@ -93,24 +86,9 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
     public function assert_providers_ok($providers) {
         $this->assertNotEmpty($providers);
         $provider = reset($providers);
-        $this->assertNotEmpty($provider['provider_name']);
-        $this->assertNotEmpty($provider['provider_url']);
-        $this->assertNotEmpty($provider['endpoints']);
-    }
-
-    /**
-     * Test sites.
-     */
-    public function test_sites() {
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-        $oembed = testable_oembed::get_instance();
-        $sites = $oembed->protected_get_sites();
-        $this->assertNotEmpty($sites);
-        $site = reset($sites);
-        $this->assertNotEmpty($site['provider_name']);
-        $this->assertNotEmpty($site['regex']);
-        $this->assertNotEmpty($site['endpoint']);
+        $this->assertNotEmpty($provider->provider_name);
+        $this->assertNotEmpty($provider->provider_url);
+        $this->assertNotEmpty($provider->endpoints);
     }
 
     /**

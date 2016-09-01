@@ -67,6 +67,79 @@ class provider {
     }
 
     /**
+     * If a matching endpoint scheme is found in the passed text, return a consumer request URL.
+     * and return the resulting JSON.
+     *
+     * @param string $text The text to look for a scheme match.
+     * @return array JSON response.
+     */
+    public function get_oembed_request($text) {
+        $requesturl = '';
+        // For each endpoint, look for a matching scheme.
+        foreach ($this->endpoints as $endpoint) {
+            // Get the regex arrauy to look for matching schemes.
+            $regexarr = $this->endpoints_regex($endpoint);
+
+            foreach ($regexarr as $regex) {
+                if (preg_match($regex, $text)) {
+                    // If {format} is in the URL, replace it with the actual format.
+
+                    //$url2 = '&format='.$endpoint->formats[0];
+                    //$url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
+                    //       '?url='.$text.$url2;
+
+                    // At the moment, we're only supporting JSON, so this must be JSON.
+                    $requesturl = str_replace('{format}', 'json', $endpoint->url) .
+                           '?url=' . $text . '&format=json';
+                    break 2; // Done, break out of all loops.
+                }
+            }
+        }
+
+        return $requesturl;
+    }
+
+    /**
+     * Return the JSON provider response.
+     *
+     * @param string $url The consumer request URL.
+     * @return array JSON response.
+     */
+    public function oembed_response($url) {
+        $ret = download_file_content($url, null, null, true, 300, 20, false, null, false);
+        return json_decode($ret->results, true);
+    }
+
+    /**
+     * Return a regular expression that can be used to search text for an endpoint's schemes.
+     *
+     * @param endpoint $endpoint
+     * @return array Array of regular expressions matching all enpoints and schemes.
+     */
+    protected function endpoints_regex(endpoint $endpoint) {
+        $schemes = $endpoint->schemes;
+        if (empty($schemes)) {
+            $schemes = [$this->provider_url];
+        }
+
+        foreach ($schemes as $scheme) {
+            $url1 = preg_split('/(https?:\/\/)/', $scheme);
+            $url2 = preg_split('/\//', $url1[1]);
+            $regexarr = [];
+
+            foreach ($url2 as $url) {
+                $find = ['.', '*'];
+                $replace = ['\.', '.*?'];
+                $url = str_replace($find, $replace, $url);
+                $regexarr[] = '('.$url.')';
+            }
+
+            $regex[] = '/(https?:\/\/)'.implode('\/', $regexarr).'/';
+        }
+        return $regex;
+    }
+
+    /**
      * Magic method for getting properties.
      * @param string $name
      * @return mixed

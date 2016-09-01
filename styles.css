@@ -7,9 +7,9 @@
     background-size: cover;
     min-height: 10em;
     position: relative;
+    transition: all 0.4s ease-in-out;
     -webkit-background-size: cover;
     -webkit-transition: all 0.4s ease-in-out;
-    transition: all 0.4s ease-in-out;
 }
 
 .oembed-card-title {
@@ -32,6 +32,7 @@
     background-image: url([[pix:filter_oembed|play]]);
     background-position: 0;
     background-repeat: no-repeat;
+    filter: drop-shadow(1px 1px 1px #666);
     left: -webkit-calc(50% - 15%/2);
     left: calc(50% - 15%/2);
     margin: 0;
@@ -40,11 +41,10 @@
     position: absolute;
     top: -webkit-calc(50% - 15%/2);
     top: calc(50% - 15%/2);
+    transition: all 0.4s ease-in-out;
     width: 15%;
     -webkit-transition: all 0.4s ease-in-out;
-    transition: all 0.4s ease-in-out;
     -webkit-filter: drop-shadow(1px 1px 1px #666);
-    filter: drop-shadow(1px 1px 1px #666);
 }
 
 .btn.btn-link.oembed-card-play:hover {

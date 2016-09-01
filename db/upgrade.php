@@ -40,7 +40,6 @@ function xmldb_filter_oembed_upgrade($oldversion) {
 
     if ($oldversion < 2016070501) {
 
-
         // Define table filter_oembed to be created.
         $table = new xmldb_table('filter_oembed');
 

@@ -69,7 +69,7 @@ echo $output->header();
 $headings = [get_string('provider', 'filter_oembed'), get_string('actions', 'moodle')];
 $rows = [];
 
-foreach($oembed->providers as $prid => $provider) {
+foreach ($oembed->providers as $prid => $provider) {
     $row = [];
     $row['pid'] = $prid;
     $row['provider_name'] = s($provider->provider_name);
@@ -77,13 +77,16 @@ foreach($oembed->providers as $prid => $provider) {
     $row['editaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=edit&pid=' . $prid . '&sesskey=' . sesskey();
 
     if ($oembed->enabled[$prid]) {
-        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=disable&pid=' . $prid . '&sesskey=' . sesskey();
+        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=disable&pid=' .
+            $prid . '&sesskey=' . sesskey();
         $row['enabled'] = true;
     } else {
-        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=enable&pid=' . $prid . '&sesskey=' . sesskey();
+        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=enable&pid=' .
+            $prid . '&sesskey=' . sesskey();
         $row['enabled'] = false;
     }
-    $row['deleteaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' . $prid . '&sesskey=' . sesskey();
+    $row['deleteaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' .
+        $prid . '&sesskey=' . sesskey();
 
     // If edit requested, provide full provider data to the template.
     if (($action = 'edit') && ($prid == $pid)) {
@@ -100,7 +103,6 @@ foreach($oembed->providers as $prid => $provider) {
     $rows[] = $row;
 }
 
-//echo $output->render_index($headings, $align, $content);
 $managepage = new \filter_oembed\output\managementpage($headings, $rows);
 echo $output->render($managepage);
 

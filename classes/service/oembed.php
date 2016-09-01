@@ -117,76 +117,22 @@ class oembed {
         $lazyload = $lazyload == 1 || $lazyload === false;
         $output = '';
 
-        // Loop through each provider, endpoint, and scheme. Exit when there is a match.
+        // Loop through each provider asking for a match.
         foreach ($this->providers as $provider) {
-
-            foreach ($provider->endpoints as $endpoint) {
-                // Check if schemes are definded for this provider.
-                // If not use the provider url for creating a regex.
-                if (!empty($endpoint->schemes)) {
-                    $regexarr = $this->create_regex_from_scheme($endpoint->schemes);
+            if ($requesturl = $provider->get_oembed_request($text)) {
+                // If we have a consumer request, we're done searching. Try for a response.
+                $jsonret = $provider->oembed_response($requesturl);
+                if (!$jsonret) {
+                    $output = '';
+                } else if ($lazyload) {
+                    $output = $this->oembed_getpreloadhtml($jsonret);
                 } else {
-                    $regexarr = $this->create_regex_from_scheme(array($provider->provider_url));
+                    $output = $this->oembed_gethtml($jsonret);
                 }
-
-                foreach ($regexarr as $regex) {
-                    if (preg_match($regex, $text)) {
-                        // If {format} is in the URL, replace it with the actual format.
-                        $url2 = '&format='.$endpoint->formats[0];
-                        $url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
-                               '?url='.$text.$url2;
-                        $jsonret = $this->oembed_curlcall($url);
-                        if (!$jsonret) {
-                            $output = '';
-                        } else if ($lazyload) {
-                            $output = $this->oembed_getpreloadhtml($jsonret);
-                        } else {
-                            $output = $this->oembed_gethtml($jsonret);
-                        }
-                        break 3; // Done, break out of all loops.
-                    }
-                }
+                break; // Done, break out of all loops.
             }
         }
         return $output;
-    }
-
-    /**
-     * Create regular expressions from the providers list to check
-     * for supported providers
-     *
-     * @param array $schemes
-     */
-    protected function create_regex_from_scheme(array $schemes) {
-
-        foreach ($schemes as $scheme) {
-
-            $url1 = preg_split('/(https?:\/\/)/', $scheme);
-            $url2 = preg_split('/\//', $url1[1]);
-
-            $regexarr = [];
-
-            foreach ($url2 as $url) {
-                $find = ['.', '*'];
-                $replace = ['\.', '.*?'];
-                $url = str_replace($find, $replace, $url);
-                $regexarr[] = '('.$url.')';
-            }
-
-            $regex[] = '/(https?:\/\/)'.implode('\/', $regexarr).'/';
-        }
-        return $regex;
-    }
-
-    /**
-     * Get the actual json from content provider
-     *
-     * @param string $www
-     * @return array
-     */
-    protected function oembed_curlcall($www) {
-        $ret = download_file_content($www, null, null, true, 300, 20, false, null, false);
-        return json_decode($ret->results, true);
     }
 
     /**

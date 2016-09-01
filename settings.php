@@ -78,6 +78,7 @@ if ($ADMIN->fulltree) {
     $item = new admin_setting_configcheckbox('filter_oembed/lazyload', new lang_string('lazyload', 'filter_oembed'), '', 1);
     $settings->add($item);
 
-    $link ='<a href="'.$CFG->wwwroot.'/filter/oembed/manageproviders.php">'.get_string('manageproviders', 'filter_oembed').'</a>';
+    $link = '<a href="'.$CFG->wwwroot.'/filter/oembed/manageproviders.php">'.
+        get_string('manageproviders', 'filter_oembed').'</a>';
     $settings->add(new admin_setting_heading('filter_oembed_addheading', '', $link));
 }
