@@ -17,6 +17,8 @@
 /**
  * @package filter_oembed
  * @author Mike Churchward <mike.churchward@poetgroup.org>
+ * @author Erich M. Wappis <erich.wappis@uni-graz.at>
+ * @author Guy Thomas <brudinie@googlemail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright 2016 The POET Group
  */
@@ -24,7 +26,9 @@
 namespace filter_oembed\provider;
 
 /**
- * Base class for oembed providers.
+ * Base class for oembed providers and plugins. Plugins should extend this class.
+ * If "filter" is provided, there is nothing else a plugin needs to implement.
+ * Plugins can instead / additionally override "get_oembed_request", "oembed_response" and "endpoints_regex".
  */
 class provider {
     /**
@@ -50,28 +54,58 @@ class provider {
         if (is_object($data)) {
             $data = (array)$data;
         }
-        $this->provider_name = $data['provider_name'];
-        $this->provider_url = $data['provider_url'];
+        if (!empty($data)) {
+            $this->provider_name = $data['provider_name'];
+            $this->provider_url = $data['provider_url'];
 
-        // If the endpoint data is a string, assume its a json encoded string.
-        if (is_string($data['endpoints'])) {
-            $data['endpoints'] = json_decode($data['endpoints'], true);
-        }
-        if (is_array($data['endpoints'])) {
-            foreach ($data['endpoints'] as $endpoint) {
-                $this->endpoints[] = new endpoint($endpoint);
+            // If the endpoint data is a string, assume its a json encoded string.
+            if (is_string($data['endpoints'])) {
+                $data['endpoints'] = json_decode($data['endpoints'], true);
             }
-        } else {
-            throw new \coding_exception('"endpoint" data must be an array for '.get_class($this));
+            if (is_array($data['endpoints'])) {
+                foreach ($data['endpoints'] as $endpoint) {
+                    $this->endpoints[] = new endpoint($endpoint);
+                }
+            } else {
+                throw new \coding_exception('"endpoint" data must be an array for '.get_class($this));
+            }
         }
     }
 
     /**
-     * If a matching endpoint scheme is found in the passed text, return a consumer request URL.
-     * and return the resulting JSON.
+     * Main filter function. This should only be used by subplugins, and it is preferable
+     * to not use it even then. Ideally, a provider plugin should provide a JSON oembed provider
+     * response (http://oembed.com/#section2.3) and let the main filter handle the HTML. Use this
+     * only if the HTML must be determined by the plugin.
      *
-     * @param string $text The text to look for a scheme match.
-     * @return array JSON response.
+     * @param string $text Incoming text.
+     * @return string Filtered text, or false for no changes.
+     */
+    public function filter($text) {
+        return false;
+    }
+
+    /**
+     * Return the JSON decoded provider implementation info.
+     *
+     * @return array JSON decoded implemenation info.
+     */
+    public function implementation() {
+        $implarr = [
+            'provider_name' => $this->provider_name,
+            'provider_url' => $this->provider_url,
+            'endpoints' => [],
+        ];
+        foreach ($this->endpoints as $endpoint) {
+            $implarr['endpoints'][] = (array)$endpoint;
+        }
+        return $implarr;
+    }
+    /**
+     * If a matching endpoint scheme is found in the passed text, return a consumer request URL.
+     *
+     * @param string $text The text to look for an URL resource using provider's schemes.
+     * @return string Consumer request URL.
      */
     public function get_oembed_request($text) {
         $requesturl = '';
@@ -84,9 +118,9 @@ class provider {
                 if (preg_match($regex, $text)) {
                     // If {format} is in the URL, replace it with the actual format.
 
-                    //$url2 = '&format='.$endpoint->formats[0];
-                    //$url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
-                    //       '?url='.$text.$url2;
+                    // $url2 = '&format='.$endpoint->formats[0];
+                    // $url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
+                    //        '?url='.$text.$url2;
 
                     // At the moment, we're only supporting JSON, so this must be JSON.
                     $requesturl = str_replace('{format}', 'json', $endpoint->url) .
@@ -100,10 +134,10 @@ class provider {
     }
 
     /**
-     * Return the JSON provider response.
+     * Make a consumer oembed request and return the JSON provider response.
      *
      * @param string $url The consumer request URL.
-     * @return array JSON response.
+     * @return array JSON decoded array.
      */
     public function oembed_response($url) {
         $ret = download_file_content($url, null, null, true, 300, 20, false, null, false);
@@ -114,7 +148,7 @@ class provider {
      * Return a regular expression that can be used to search text for an endpoint's schemes.
      *
      * @param endpoint $endpoint
-     * @return array Array of regular expressions matching all enpoints and schemes.
+     * @return array Array of regular expressions matching all endpoints and schemes.
      */
     protected function endpoints_regex(endpoint $endpoint) {
         $schemes = $endpoint->schemes;

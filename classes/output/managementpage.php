@@ -62,8 +62,6 @@ class managementpage implements \renderable, \templatable {
      * @param
      */
     public function export_for_template(\renderer_base $output) {
-        global $OUTPUT;
-
         $data = [
             'headings' => ['title1' => $this->headings['title1'],
                            'title2' => $this->headings['title2']
@@ -72,7 +70,7 @@ class managementpage implements \renderable, \templatable {
         ];
 
         foreach ($this->rows as $row) {
-            $tmplrow=[];
+            $tmplrow = [];
 
             $tmplrow['pid'] = $row['pid'];
             $tmplrow['provider_name'] = $row['provider_name'];

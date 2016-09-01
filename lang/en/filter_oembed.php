@@ -25,22 +25,24 @@
  */
 
 $string['filtername'] = 'Oembed Filter';
+$string['atag'] = 'Filter on &lt; a &gt; tags';
 $string['cachelifespan_disabled'] = 'Cache lifespan disabled';
 $string['cachelifespan'] = 'Cache lifespan';
 $string['cachelifespan_desc'] = 'The duration of time before the providers list should be refreshed.';
 $string['cachelifespan_daily'] = '1 day';
 $string['cachelifespan_weekly'] = '1 week';
+$string['connection_error'] = 'Error connecting to external provider, please try reloading the page.';
 $string['deleteproviderconfirm'] = 'Are you sure you want to delete this provider?';
-$string['atag'] = 'Filter on &lt; a &gt; tags';
 $string['divtag'] = 'Filter on &lt; div &gt; tags';
 $string['lazyload'] = 'Delay Embed Loading (Lazyload)';
 $string['manageproviders'] = 'Manage providers in use';
-$string['targettag'] = 'Target tag';
-$string['targettag_desc'] = 'What tag type should be filtered - anchors or divs with the oembed class.';
 $string['playoembed'] = 'Play';
 $string['provider'] = 'Provider';
 $string['providersrestrict'] = 'Restrict providers';
 $string['providersrestrict_desc'] = 'Restrict providers to a list of allowed providers';
 $string['providersallowed'] = 'Providers allowed.';
 $string['providersallowed_desc'] = 'Providers whitelisted to be used with this plugin';
-$string['connection_error'] = 'Error connecting to external provider, please try reloading the page.';
+$string['subplugintype_oembedprovider'] = 'Oembed provider';
+$string['subplugintype_oembedprovider_plural'] = 'Oembed providers';
+$string['targettag'] = 'Target tag';
+$string['targettag_desc'] = 'What tag type should be filtered - anchors or divs with the oembed class.';

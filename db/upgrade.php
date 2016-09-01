@@ -34,7 +34,7 @@ use filter_oembed\service\oembed;
  * @return bool Success.
  */
 function xmldb_filter_oembed_upgrade($oldversion) {
-    global $CFG, $DB;
+    global $DB;
 
     $dbman = $DB->get_manager();
 

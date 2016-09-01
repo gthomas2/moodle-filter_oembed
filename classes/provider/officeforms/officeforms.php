@@ -17,15 +17,31 @@
 /**
  * @package filter_oembed
  * @author Aashay Zajriya<aashay@introp.net>
+ * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2016 onwards Microsoft Open Technologies, Inc. (http://msopentech.com/)
  */
 
 namespace filter_oembed\provider;
+
 /**
  * oEmbed provider implementation for Microsoft Forms
  */
-class officeforms extends base {
+class officeforms extends provider {
+
+    /**
+     * Constructor.
+     * @param $data JSON decoded array or a data object containing all provider data.
+     */
+    public function __construct($data = null) {
+        $data = [
+            'provider_name' => 'Office Forms',
+            'provider_url' => '',
+            'endpoints' => [],
+        ];
+        parent::__construct($data);
+    }
+
     /**
      * Get the replacement oembed HTML.
      *

@@ -119,7 +119,11 @@ class oembed {
 
         // Loop through each provider asking for a match.
         foreach ($this->providers as $provider) {
-            if ($requesturl = $provider->get_oembed_request($text)) {
+            if (($completeoutput = $provider->filter($text)) !== false) {
+                // Plugins may provide everything required. If so, just return it.
+                $output = $completeoutput;
+                break;
+            } else if ($requesturl = $provider->get_oembed_request($text)) {
                 // If we have a consumer request, we're done searching. Try for a response.
                 $jsonret = $provider->oembed_response($requesturl);
                 if (!$jsonret) {
@@ -208,7 +212,7 @@ class oembed {
      * @return string Any notification messages.
      */
     public static function update_provider_data() {
-        global $CFG, $DB;
+        global $DB;
 
         $warnings = [];
         // Is there any data currently at all?
@@ -270,12 +274,28 @@ class oembed {
 
     /**
      * Function to return a list of providers provided by the current sub plugins.
+     * Since Moodle doesn't currently support subplugins for filters, do this in this plugin.0
      *
      * @return space array
      */
     protected static function get_plugin_providers() {
-        // TODO - complete this function.
-        return [];
+        global $CFG;
+
+        $pluginproviders = [];
+        $path = $CFG->dirroot.'/filter/oembed/classes/provider/';
+        $thisdir = new \DirectoryIterator($path);
+        foreach ($thisdir as $dir) {
+            if ($dir->isDir()) {
+                $name = $dir->getFilename();
+                if (($name != '.') && ($name != '..')) {
+                    require_once($CFG->dirroot.'/filter/oembed/classes/provider/'.$name.'/'.$name.'.php');
+                    $name = "\\filter_oembed\\provider\\{$name}";
+                    $newplugin = new $name();
+                    $pluginproviders[] =array_merge($newplugin->implementation(), ['plugin' => $name]);
+                }
+            }
+        }
+        return $pluginproviders;
     }
 
     /**
@@ -299,9 +319,6 @@ class oembed {
             $source = 'local::'.$CFG->dirroot.'/filter/oembed/providers.json';
         }
 
-        // Next, add the plugin providers that exist.
-        $providers = array_merge($providers, self::get_plugin_providers());
-
         // Load each provider into the database.
         foreach ($providers as $provider) {
             $record = new \stdClass();
@@ -309,6 +326,21 @@ class oembed {
             $record->provider_url = $provider['provider_url'];
             $record->endpoints = json_encode($provider['endpoints']);
             $record->source = $source;
+            $record->enabled = 1;   // Enable everything by default.
+            $record->timecreated = time();
+            $record->timemodified = time();
+            $DB->insert_record('filter_oembed', $record);
+        }
+
+        // Next, add the plugin providers that exist.
+        $providers = self::get_plugin_providers();
+        $source = 'plugin::';
+        foreach ($providers as $provider) {
+            $record = new \stdClass();
+            $record->provider_name = $provider['provider_name'];
+            $record->provider_url = $provider['provider_url'];
+            $record->endpoints = json_encode($provider['endpoints']);
+            $record->source = $source.$provider['plugin'];
             $record->enabled = 1;   // Enable everything by default.
             $record->timecreated = time();
             $record->timemodified = time();

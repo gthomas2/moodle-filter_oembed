@@ -21,7 +21,7 @@
  * @copyright (C) 2014 onwards Microsoft Open Technologies, Inc. (http://msopentech.com/)
  */
 
-namespace filter_oembed\rest;
+namespace filter_oembed\provider\powerbi\rest;
 
 /**
  * API client for Power BI.

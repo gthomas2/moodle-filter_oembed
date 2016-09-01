@@ -17,6 +17,7 @@
 /**
  * @package filter_oembed
  * @author James McQuillan <james.mcquillan@remote-learner.net>
+ * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2016 onwards Microsoft, Inc. (http://microsoft.com/)
  */
@@ -26,15 +27,32 @@ namespace filter_oembed\provider;
 /**
  * oEmbed provider implementation for Docs.com
  */
-class docsdotcom extends base {
+class docsdotcom extends provider {
+
     /**
-     * Get the replacement oembed HTML.
-     *
-     * @param array $matched Matched URL.
-     * @return string The replacement text/HTML.
+     * Constructor.
+     * @param $data JSON decoded array or a data object containing all provider data.
      */
-    public function get_replacement($matched) {
-        if (!empty($matched[0])) {
+    public function __construct($data = null) {
+        $data = [
+            'provider_name' => 'Docs',
+            'provider_url' => '',
+            'endpoints' => [],
+        ];
+        parent::__construct($data);
+    }
+
+    /**
+     * If a matching endpoint scheme is found in the passed text, return a consumer request URL.
+     *
+     * @param string $text The text to look for an URL resource using provider's schemes.
+     * @return string Consumer request URL.
+     */
+    public function get_oembed_request($text) {
+        $requesturl = '';
+        // Get the regex arrauy to look for matching schemes.
+        $regex = $this->endpoints_regex($endpoint);
+        if (preg_match($regex, $text, $matches)) {
             $params = [
                 'url' => $matched[1]. $matched[3] . '/' . $matched[4] . '/' . $matched[5] . '/' . $matched[6],
                 'format' => 'json',
@@ -42,21 +60,18 @@ class docsdotcom extends base {
                 'maxheight' => '400',
             ];
             $oembedurl = new \moodle_url('https://docs.com/api/oembed', $params);
-            $oembeddata = $this->getoembeddata($oembedurl->out(false));
-            return '<div class="filter_oembed_docsdotcom">'.$this->getoembedhtml($oembeddata).'</div>';
-        } else {
-            return $matched[0];
+            $requesturl = $oembedurl->out(false);
         }
+        return $requesturl;
     }
 
     /**
-     * Filter the text.
+     * Return a regular expression that can be used to search text for an endpoint's schemes.
      *
-     * @param string $text Incoming text.
-     * @return string Filtered text.
+     * @param endpoint $endpoint
+     * @return array Array of regular expressions matching all endpoints and schemes.
      */
-    public function filter($text) {
-        $search = '/<a\s[^>]*href="(https?:\/\/(www\.)?)(docs\.com)\/(.+?)\/(.+?)\/(.+?)"(.*?)>(.*?)<\/a>/is';
-        return preg_replace_callback($search, [$this, 'get_replacement'], $text);
+    protected function endpoints_regex(endpoint $endpoint) {
+        return '/<a\s[^>]*href="(https?:\/\/(www\.)?)(docs\.com)\/(.+?)\/(.+?)\/(.+?)"(.*?)>(.*?)<\/a>/is';
     }
 }

@@ -17,6 +17,7 @@
 /**
  * @package filter_oembed
  * @author Sushant Gawali <sushant@introp.net>
+ * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright (C) 2016 onwards Microsoft Open Technologies, Inc. (http://msopentech.com/)
  */
@@ -25,7 +26,21 @@ namespace filter_oembed\provider;
 /**
  * oEmbed provider implementation for Docs.com
  */
-class powerbi extends base {
+class powerbi extends provider {
+
+    /**
+     * Constructor.
+     * @param $data JSON decoded array or a data object containing all provider data.
+     */
+    public function __construct($data = null) {
+        $data = [
+            'provider_name' => 'Power BI',
+            'provider_url' => '',
+            'endpoints' => [],
+        ];
+        parent::__construct($data);
+    }
+
     /**
      * Get the replacement oembed HTML.
      *
@@ -35,10 +50,10 @@ class powerbi extends base {
     public function get_replacement($matched) {
         $httpclient = new \local_o365\httpclient();
         $clientdata = \local_o365\oauth2\clientdata::instance_from_oidc();
-        $resource = \filter_oembed\rest\powerbi::get_resource();
+        $resource = \filter_oembed\provider\powerbi\rest\powerbi::get_resource();
         $token = \local_o365\oauth2\systemtoken::instance(null, $resource, $clientdata, $httpclient);
         if (!empty($token)) {
-            $powerbi = new \filter_oembed\rest\powerbi($token, $httpclient);
+            $powerbi = new \filter_oembed\provider\powerbi\rest\powerbi($token, $httpclient);
             if ($matched[6] == 'reports') {
                 $reportsdata = $powerbi->apicall('get', 'reports');
                 $embedurl = $powerbi->getreportoembedurl($matched[7], $reportsdata);
