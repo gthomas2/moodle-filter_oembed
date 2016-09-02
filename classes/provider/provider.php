@@ -34,12 +34,12 @@ class provider {
     /**
      * @var string
      */
-    protected $provider_name = '';
+    protected $providername = '';
 
     /**
      * @var string
      */
-    protected $provider_url = '';
+    protected $providerurl = '';
 
     /**
      * @var endpoints
@@ -48,6 +48,11 @@ class provider {
 
     /**
      * Constructor.
+     * Note - provider data is expcted to come from the moodle data (db) which excludes
+     * "_" in variable names. Providers coming directly from oembed (http://oembed.com/providers.json),
+     * include "_" in variable names, which violates the Moodle coding standard. Currently,
+     * this is managed by the update processes to ensure compatibility.
+     *
      * @param $data JSON decoded array or a data object containing all provider data.
      */
     public function __construct($data = null) {
@@ -55,8 +60,8 @@ class provider {
             $data = (array)$data;
         }
         if (!empty($data)) {
-            $this->provider_name = $data['provider_name'];
-            $this->provider_url = $data['provider_url'];
+            $this->providername = $data['providername'];
+            $this->providerurl = $data['providerurl'];
 
             // If the endpoint data is a string, assume its a json encoded string.
             if (is_string($data['endpoints'])) {
@@ -86,14 +91,14 @@ class provider {
     }
 
     /**
-     * Return the JSON decoded provider implementation info.
+     * Return the JSON decoded provider implementation info as in http://oembed.com/providers.json.
      *
      * @return array JSON decoded implemenation info.
      */
     public function implementation() {
         $implarr = [
-            'provider_name' => $this->provider_name,
-            'provider_url' => $this->provider_url,
+            'provider_name' => $this->providername,
+            'provider_url' => $this->providerurl,
             'endpoints' => [],
         ];
         foreach ($this->endpoints as $endpoint) {
@@ -153,7 +158,7 @@ class provider {
     protected function endpoints_regex(endpoint $endpoint) {
         $schemes = $endpoint->schemes;
         if (empty($schemes)) {
-            $schemes = [$this->provider_url];
+            $schemes = [$this->providerurl];
         }
 
         foreach ($schemes as $scheme) {
@@ -180,7 +185,7 @@ class provider {
      * @throws \coding_exception
      */
     public function __get($name) {
-        $allowed = ['provider_name', 'provider_url', 'endpoints'];
+        $allowed = ['providername', 'providerurl', 'endpoints'];
         if (in_array($name, $allowed)) {
             return $this->$name;
         } else {

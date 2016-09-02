@@ -86,8 +86,8 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
     public function assert_providers_ok($providers) {
         $this->assertNotEmpty($providers);
         $provider = reset($providers);
-        $this->assertNotEmpty($provider->provider_name);
-        $this->assertNotEmpty($provider->provider_url);
+        $this->assertNotEmpty($provider->providername);
+        $this->assertNotEmpty($provider->providerurl);
         $this->assertNotEmpty($provider->endpoints);
     }
 

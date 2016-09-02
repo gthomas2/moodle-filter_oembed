@@ -21,12 +21,13 @@
  * @copyright 2016 The POET Group
  */
 require_once(dirname(__FILE__) . '/../../config.php');
-require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->libdir.'/adminlib.php');
 
 require_login();
 
 $systemcontext = context_system::instance();
 require_capability('moodle/site:config', $systemcontext);
+admin_externalpage_setup('filter_oembed_providers');
 
 $action = optional_param('action', '', PARAM_ALPHA);
 $pid = optional_param('pid', 0, PARAM_INT);
@@ -59,10 +60,6 @@ $strmanage = get_string('manageproviders', 'filter_oembed');
 $PAGE->set_title($strmanage);
 $PAGE->set_heading($strmanage);
 
-$PAGE->navbar->add(get_string('filter'));
-$PAGE->navbar->add(get_string('filtername', 'filter_oembed'));
-$PAGE->navbar->add(get_string('manageproviders', 'filter_oembed'), $baseurl);
-
 $output = $PAGE->get_renderer('filter_oembed');
 echo $output->header();
 
@@ -72,8 +69,8 @@ $rows = [];
 foreach ($oembed->providers as $prid => $provider) {
     $row = [];
     $row['pid'] = $prid;
-    $row['provider_name'] = s($provider->provider_name);
-    $row['provider_url'] = s($provider->provider_url);
+    $row['providername'] = s($provider->providername);
+    $row['providerurl'] = s($provider->providerurl);
     $row['editaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=edit&pid=' . $prid . '&sesskey=' . sesskey();
 
     if ($oembed->enabled[$prid]) {

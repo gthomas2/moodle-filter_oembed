@@ -73,8 +73,8 @@ class managementpage implements \renderable, \templatable {
             $tmplrow = [];
 
             $tmplrow['pid'] = $row['pid'];
-            $tmplrow['provider_name'] = $row['provider_name'];
-            $tmplrow['provider_url'] = $row['provider_url'];
+            $tmplrow['providername'] = $row['providername'];
+            $tmplrow['providerurl'] = $row['providerurl'];
 
             // Display logic for hide/show.
             if ($row['enabled']) {

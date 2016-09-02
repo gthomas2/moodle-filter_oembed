@@ -35,8 +35,8 @@ class officeforms extends provider {
      */
     public function __construct($data = null) {
         $data = [
-            'provider_name' => 'Office Forms',
-            'provider_url' => '',
+            'providername' => 'Office Forms',
+            'providerurl' => '',
             'endpoints' => [],
         ];
         parent::__construct($data);

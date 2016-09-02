@@ -35,8 +35,8 @@ class docsdotcom extends provider {
      */
     public function __construct($data = null) {
         $data = [
-            'provider_name' => 'Docs',
-            'provider_url' => '',
+            'providername' => 'Docs',
+            'providerurl' => '',
             'endpoints' => [],
         ];
         parent::__construct($data);

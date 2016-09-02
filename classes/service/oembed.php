@@ -268,7 +268,7 @@ class oembed {
     protected static function get_local_providers() {
         global $CFG;
 
-        $ret = file_get_contents($CFG->dirroot.'/filter/oembed/providers.json');
+        $ret = file_get_contents($CFG->dirroot.'/filter/oembed/provider/providers.json');
         return json_decode($ret, true);
     }
 
@@ -282,16 +282,16 @@ class oembed {
         global $CFG;
 
         $pluginproviders = [];
-        $path = $CFG->dirroot.'/filter/oembed/classes/provider/';
+        $path = $CFG->dirroot.'/filter/oembed/provider/';
         $thisdir = new \DirectoryIterator($path);
         foreach ($thisdir as $dir) {
             if ($dir->isDir()) {
                 $name = $dir->getFilename();
                 if (($name != '.') && ($name != '..')) {
-                    require_once($CFG->dirroot.'/filter/oembed/classes/provider/'.$name.'/'.$name.'.php');
+                    require_once($CFG->dirroot.'/filter/oembed/provider/'.$name.'/'.$name.'.php');
                     $classname = "\\filter_oembed\\provider\\{$name}";
                     $newplugin = new $classname();
-                    $pluginproviders[] =array_merge($newplugin->implementation(), ['plugin' => $name]);
+                    $pluginproviders[] = array_merge($newplugin->implementation(), ['plugin' => $name]);
                 }
             }
         }
@@ -316,14 +316,14 @@ class oembed {
             if (empty($providers)) {
                 throw new \moodle_exception('No initial provider data available. Oembed filter will not function properly.');
             }
-            $source = 'local::'.$CFG->dirroot.'/filter/oembed/providers.json';
+            $source = 'local::'.$CFG->dirroot.'/filter/oembed/provider/providers.json';
         }
 
         // Load each provider into the database.
         foreach ($providers as $provider) {
             $record = new \stdClass();
-            $record->provider_name = $provider['provider_name'];
-            $record->provider_url = $provider['provider_url'];
+            $record->providername = $provider['provider_name'];
+            $record->providerurl = $provider['provider_url'];
             $record->endpoints = json_encode($provider['endpoints']);
             $record->source = $source;
             $record->enabled = 1;   // Enable everything by default.
@@ -337,16 +337,16 @@ class oembed {
         $source = 'plugin::';
         foreach ($providers as $provider) {
             $record = new \stdClass();
-            $record->provider_name = $provider['provider_name'];
-            $record->provider_url = $provider['provider_url'];
+            $record->providername = $provider['provider_name'];
+            $record->providerurl = $provider['provider_url'];
             $record->endpoints = json_encode($provider['endpoints']);
             $record->source = $source.$provider['plugin'];
             $record->enabled = 1;   // Enable everything by default.
             $record->timecreated = time();
             $record->timemodified = time();
-            if ($DB->record_exists('filter_oembed', ['provider_name' => $record->provider_name])) {
+            if ($DB->record_exists('filter_oembed', ['providername' => $record->providername])) {
                 // If a provider already exists with this name, append the plugin name.
-                $record->provider_name .= ' (' . $record->source . ')';
+                $record->providername .= ' (' . $record->source . ')';
             }
             $DB->insert_record('filter_oembed', $record);
         }
@@ -399,7 +399,7 @@ class oembed {
         global $DB;
 
         if (is_object($provider)) {
-            $lookup = ['provider_name' => $provider->provider_name];
+            $lookup = ['providername' => $provider->providername];
             $pid = $DB->get_field('filter_oembed', 'id', $lookup);
         } else if (is_int($provider)) {
             $lookup = ['id' => $provider];

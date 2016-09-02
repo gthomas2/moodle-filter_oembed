@@ -21,6 +21,8 @@
  * @copyright 2016 The POET Group
  */
 
+// Note: Filters do not currently support subplugins, so this file is here
+// in case they ever do.
 $subplugins = [
-    'oembedprovider' => 'filter/oembed/classes/provider'
+    'oembedprovider' => 'filter/oembed/provider'
 ];

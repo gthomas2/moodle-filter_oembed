@@ -23,6 +23,7 @@
  */
 
 namespace filter_oembed\provider;
+
 /**
  * oEmbed provider implementation for Docs.com
  */
@@ -34,8 +35,8 @@ class powerbi extends provider {
      */
     public function __construct($data = null) {
         $data = [
-            'provider_name' => 'Power BI',
-            'provider_url' => '',
+            'providername' => 'Power BI',
+            'providerurl' => '',
             'endpoints' => [],
         ];
         parent::__construct($data);

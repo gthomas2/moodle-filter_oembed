@@ -7,8 +7,8 @@
     <TABLE NAME="filter_oembed" COMMENT="Default comment for filter_oembed, please edit me">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="provider_name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="provider_url" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="providername" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="providerurl" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="endpoints" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON encoded endpoints structure."/>
         <FIELD NAME="source" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Original source of provider. This may include a category code."/>
         <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
@@ -19,7 +19,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="providernameix" UNIQUE="true" FIELDS="provider_name"/>
+        <INDEX NAME="providernameix" UNIQUE="true" FIELDS="providername"/>
       </INDEXES>
     </TABLE>
   </TABLES>

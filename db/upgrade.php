@@ -45,8 +45,8 @@ function xmldb_filter_oembed_upgrade($oldversion) {
 
         // Adding fields to table filter_oembed.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('provider_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('provider_url', XMLDB_TYPE_CHAR, '1333', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('providername', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('providerurl', XMLDB_TYPE_CHAR, '1333', null, XMLDB_NOTNULL, null, null);
         $table->add_field('endpoints', XMLDB_TYPE_TEXT, null, null, null, null, null);
         $table->add_field('source', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
@@ -57,7 +57,7 @@ function xmldb_filter_oembed_upgrade($oldversion) {
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
         // Adding indexes to table filter_oembed.
-        $table->add_index('providernameix', XMLDB_INDEX_UNIQUE, array('provider_name'));
+        $table->add_index('providernameix', XMLDB_INDEX_UNIQUE, array('providername'));
 
         // Conditionally launch create table for filter_oembed.
         if (!$dbman->table_exists($table)) {
@@ -92,7 +92,7 @@ function xmldb_filter_oembed_upgrade($oldversion) {
         ];
 
         foreach ($providermap as $oldprovider => $newprovider) {
-            $provider = $DB->get_record('filter_oembed', ['provider_name' => $newprovider[0]]);
+            $provider = $DB->get_record('filter_oembed', ['providername' => $newprovider[0]]);
 
             // Look for originally hard-coded plugins. If still not present, create it from old code.
             // If it is present, assume that it has since been added to the oembed repo and use that.
@@ -102,8 +102,8 @@ function xmldb_filter_oembed_upgrade($oldversion) {
                 // Handle non-downloaded Oembed types.
                 $insert = true;
                 $provider = new stdClass();
-                $provider->provider_name = $newprovider[0];
-                $provider->provider_url = $newprovider[1];
+                $provider->providername = $newprovider[0];
+                $provider->providerurl = $newprovider[1];
                 $endpoints = [
                     'schemes' => $newprovider[2],
                     'url' => $newprovider[3],

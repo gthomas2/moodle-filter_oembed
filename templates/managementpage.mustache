@@ -42,8 +42,8 @@
         "rows": [
             {
                 "pid": "1",
-                "provider_name": "23HQ",
-                "provider_url": "http://www.23hq.com/",
+                "providername": "23HQ",
+                "providerurl": "http://www.23hq.com/",
                 "enableaction": "http://localhost/moodlehq.git/filter/oembed/manageproviders.php?action=disable&pid=1&sesskey=dvBXP9rX1G",
                 "editaction": "http://localhost/moodlehq.git/filter/oembed/manageproviders.php?action=edit&pid=1&sesskey=dvBXP9rX1G",
                 "deleteaction": "http://localhost/moodlehq.git/filter/oembed/manageproviders.php?action=delete&pid=1&sesskey=dvBXP9rX1G",
@@ -70,14 +70,14 @@ Displayed if x was true.
   <tbody>
 {{#rows}}
     <tr id="oembed-display-providers_{{@index}}" class="{{extraclass}}">
-      <td id="oembed-display-providers_{{@index}}_c0" class="cell c0 provider"><a href="{{provider_url}}" target="_blank">{{provider_name}}</a></td>
+      <td id="oembed-display-providers_{{@index}}_c0" class="cell c0 provider"><a href="{{providerurl}}" target="_blank">{{providername}}</a></td>
       <td id="oembed-display-providers_{{@index}}_c1" class="cell c1 actions">{{{enableaction}}} {{{editaction}}} {{{deleteaction}}}</td>
     </tr>
     {{#editing}}
     <tr>
       <td colspan="2">
-      Provider name: {{provider_name}}<br />
-      Provider url: {{provider_url}}<br />
+      Provider name: {{providername}}<br />
+      Provider url: {{providerurl}}<br />
       Schemes: {{#schemes}} {{ . }}<br /> {{/schemes}}
       Source: {{source}}
       </td>

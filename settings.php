@@ -31,6 +31,9 @@ require_once($CFG->libdir.'/formslib.php');
 
 use filter_oembed\service\oembed;
 
+$ADMIN->add('filtersettings', new admin_category('filteroembedfolder', get_string('filtername', 'filter_oembed')));
+$settings = new admin_settingpage($section, get_string('settings'));
+
 if ($ADMIN->fulltree) {
     $targettags = [
         'a' => get_string('atag', 'filter_oembed'),
@@ -46,39 +49,15 @@ if ($ADMIN->fulltree) {
         'atag',
         ['atag' => 'atag', 'divtag' => 'divtag']
     );
-
     $settings->add($item);
-
-    $item = new admin_setting_configcheckbox(
-        'filter_oembed/providersrestrict',
-        get_string('providersrestrict', 'filter_oembed'),
-        get_string('providersrestrict_desc', 'filter_oembed'),
-        0
-    );
-    $settings->add($item);
-
-    $targettag = get_config('filter_oembed', 'targettag');
-    if (!empty($config->providersrestrict)) {
-        $oembed = oembed::get_instance();
-        $providers = $oembed->providers;
-        foreach ($providers as $provider) {
-            $providersalloweddefault[$provider['provider_name']] = $provider['provider_name'];
-        }
-
-        $item = new admin_setting_configmulticheckbox(
-            'filter_oembed/providersallowed',
-            get_string('providersallowed', 'filter_oembed'),
-            get_string('providersallowed_desc', 'filter_oembed'),
-            implode(',', array_values($providersalloweddefault)),
-            $providersalloweddefault
-        );
-        $settings->add($item);
-    }
 
     $item = new admin_setting_configcheckbox('filter_oembed/lazyload', new lang_string('lazyload', 'filter_oembed'), '', 1);
     $settings->add($item);
-
-    $link = '<a href="'.$CFG->wwwroot.'/filter/oembed/manageproviders.php">'.
-        get_string('manageproviders', 'filter_oembed').'</a>';
-    $settings->add(new admin_setting_heading('filter_oembed_addheading', '', $link));
 }
+
+$ADMIN->add('filteroembedfolder', $settings);
+
+$ADMIN->add('filteroembedfolder', new admin_externalpage('filter_oembed_providers',
+    get_string('manageproviders', 'filter_oembed'), new moodle_url('/filter/oembed/manageproviders.php')));
+
+$settings = null;
