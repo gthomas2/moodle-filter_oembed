@@ -70,19 +70,20 @@ Displayed if x was true.
   <tbody>
 {{#rows}}
     <tr id="oembed-display-providers_{{@index}}" class="{{extraclass}}">
-      <td id="oembed-display-providers_{{@index}}_c0" class="cell c0 provider"><a href="{{providerurl}}" target="_blank">{{providername}}</a></td>
+      <td id="oembed-display-providers_{{@index}}_c0" class="cell c0 provider">
+          <a href="{{providerurl}}" target="_blank">{{providername}}</a>
+          {{#editing}}
+          <div class="oembed-provider-details">
+              Provider name: {{providername}}<br />
+              Provider url: {{providerurl}}<br />
+              Schemes: {{#schemes}} {{ . }}<br /> {{/schemes}}
+              Source: {{source}}
+          </div>
+          {{/editing}}
+      </td>
       <td id="oembed-display-providers_{{@index}}_c1" class="cell c1 actions">{{{enableaction}}} {{{editaction}}} {{{deleteaction}}}</td>
     </tr>
-    {{#editing}}
-    <tr>
-      <td colspan="2">
-      Provider name: {{providername}}<br />
-      Provider url: {{providerurl}}<br />
-      Schemes: {{#schemes}} {{ . }}<br /> {{/schemes}}
-      Source: {{source}}
-      </td>
-    </tr>
-    {{/editing}}
+
 {{/rows}}
   </tbody>
 </table>
