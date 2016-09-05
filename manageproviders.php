@@ -36,6 +36,8 @@ if (!empty($action)) {
     require_sesskey();
 }
 
+$PAGE->requires->js_call_amd('filter_oembed/manageproviders', 'init');
+
 $oembed = \filter_oembed\service\oembed::get_instance('all');
 
 // Process actions.
@@ -63,7 +65,6 @@ $PAGE->set_heading($strmanage);
 $output = $PAGE->get_renderer('filter_oembed');
 echo $output->header();
 
-$headings = [get_string('provider', 'filter_oembed'), get_string('actions', 'moodle')];
 $rows = [];
 
 foreach ($oembed->providers as $prid => $provider) {
@@ -100,7 +101,7 @@ foreach ($oembed->providers as $prid => $provider) {
     $rows[] = $row;
 }
 
-$managepage = new \filter_oembed\output\managementpage($headings, $rows);
+$managepage = new \filter_oembed\output\managementpage($rows);
 echo $output->render($managepage);
 
 // Finish the page.

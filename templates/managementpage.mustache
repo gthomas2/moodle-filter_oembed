@@ -31,14 +31,6 @@
 
     Example context (json):
     {
-        "headings": [
-            {
-                "title1": "Provider",
-                "title2": "Actions",
-            }
-        ]
-    },
-    {
         "rows": [
             {
                 "pid": "1",
@@ -58,32 +50,33 @@
 {{#x}}
 Displayed if x was true.
 {{/x}}
-<table id="oembedproviders" class="flexible generaltable generalbox" cellspacing="0">
-  <thead>
-    <tr>
-{{#headings}}
-      <th class="header c0 provider" scope="col">{{title1}}</th>
-      <th class="header c1 actions" scope="col">{{title2}}</th>
-{{/headings}}
-    </tr>
-  </thead>
-  <tbody>
-{{#rows}}
-    <tr id="oembed-display-providers_{{@index}}" class="{{extraclass}}">
-      <td id="oembed-display-providers_{{@index}}_c0" class="cell c0 provider">
-          <a href="{{providerurl}}" target="_blank">{{providername}}</a>
-          {{#editing}}
-          <div class="oembed-provider-details">
-              Provider name: {{providername}}<br />
-              Provider url: {{providerurl}}<br />
-              Schemes: {{#schemes}} {{ . }}<br /> {{/schemes}}
-              Source: {{source}}
-          </div>
-          {{/editing}}
-      </td>
-      <td id="oembed-display-providers_{{@index}}_c1" class="cell c1 actions">{{{enableaction}}} {{{editaction}}} {{{deleteaction}}}</td>
-    </tr>
+<div id="providermanagement">
+    <table id="oembedproviders" class="flexible generaltable generalbox" cellspacing="0">
+      <thead>
+        <tr>
+          <th class="header c0 provider" scope="col"><input class="search" placeholder="{{#str}}provider, filter_oembed{{/str}}" /></th>
+        </tr>
+      </thead>
+      <tbody class="list">
+    {{#rows}}
+        <tr id="oembed-display-providers_{{@index}}" class="{{extraclass}}">
+          <td id="oembed-display-providers_{{@index}}_c0" class="cell c0 provider">
+              <a href="{{providerurl}}" target="_blank" class="list-providername">{{providername}}</a>
+              {{#editing}}
+              <div class="oembed-provider-details">
+                  Provider name: {{providername}}<br />
+                  Provider url: {{providerurl}}<br />
+                  Schemes: {{#schemes}} {{ . }}<br /> {{/schemes}}
+                  Source: {{source}}
+              </div>
+              {{/editing}}
+              <div class="oembed-provider-actions">
+                  {{{enableaction}}} {{{editaction}}} {{{deleteaction}}}
+              </div>
+          </td>
+        </tr>
 
-{{/rows}}
-  </tbody>
-</table>
+    {{/rows}}
+      </tbody>
+    </table>
+</div>
