@@ -224,7 +224,21 @@ class oembed {
                 // Handle no initial data situation.
                 $warnings[] = $e->getMessage();
             }
+        } else {
+            // Update all existing provider data.
+            try {
+                $providers = self::download_providers();
+                $source = 'download::http://oembed.com/providers.json';
+            } catch (Exception $e) {
+                $warnings[] = $e->getMessage();
+                $providers = [];
+            }
+            self::update_downloaded_providers($providers);
+            self::update_plugin_providers(self::get_plugin_providers());
         }
+
+        // If no providers were retrieved, log the issue.
+        // self::log_issues($warnings);
         return $warnings;
     }
 
@@ -319,18 +333,8 @@ class oembed {
             $source = 'local::'.$CFG->dirroot.'/filter/oembed/provider/providers.json';
         }
 
-        // Load each provider into the database.
-        foreach ($providers as $provider) {
-            $record = new \stdClass();
-            $record->providername = $provider['provider_name'];
-            $record->providerurl = $provider['provider_url'];
-            $record->endpoints = json_encode($provider['endpoints']);
-            $record->source = $source;
-            $record->enabled = 1;   // Enable everything by default.
-            $record->timecreated = time();
-            $record->timemodified = time();
-            $DB->insert_record('filter_oembed', $record);
-        }
+        // Load each downloaded provider into the database.
+        self::update_downloaded_providers($providers, $source);
 
         // Next, add the plugin providers that exist.
         $providers = self::get_plugin_providers();
@@ -352,6 +356,110 @@ class oembed {
         }
 
         return $warnings;
+    }
+
+    /**
+     * Update the database with the downloaded provider data.
+     *
+     * @param array $providers The JSON decoded provider data.
+     * @param string $source The source name for the provided providers.
+     */
+    private static function update_downloaded_providers(array $providers, $source = null) {
+        global $DB;
+
+        if ($source === null) {
+            $source = 'download::http://oembed.com/providers.json';
+        }
+
+        // Get current providers as array indexed by name.
+        $currentproviders =
+            self::get_all_provider_data('providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified');
+
+        foreach ($providers as $provider) {
+            if (isset($currentproviders[$provider['provider_name']])) {
+                // Existing provider exists; check for update.
+                $currprovider = $currentproviders[$provider['provider_name']];
+                $change = false;
+
+                if ($currprovider->providerurl != $provider['provider_url']) {
+                    // Perform change URL actions.
+                    $currprovider->providerurl = $provider['provider_url'];
+                    $change = true;
+                }
+
+                if ($currprovider->endpoints != $provider['endpoints']) {
+                    // Perform change endpoints actions.
+                    $currprovider->endpoints = $provider['endpoints'];
+                    $change = true;
+                }
+
+                if ($change) {
+                    $currprovider->timemodified = time();
+                    $DB->update_record('filter_oembed', $currprovider);
+                }
+                unset($currentproviders[$provider['provider_name']]);
+            } else {
+                // New provider.
+                $record = new \stdClass();
+                $record->providername = $provider['provider_name'];
+                $record->providerurl = $provider['provider_url'];
+                $record->endpoints = json_encode($provider['endpoints']);
+                $record->source = $source;
+                $record->enabled = 1;   // Enable everything by default.
+                $record->timecreated = time();
+                $record->timemodified = time();
+                $DB->insert_record('filter_oembed', $record);
+            }
+        }
+
+        // Any current providers left must have been deleted if they have the same source.
+        foreach ($currentproviders as $providername => $providerdata) {
+            if ($providerdata->source == $source) {
+                // Perform delete provider actions.
+                $DB->delete_record('filter_oembed', ['id' => $providerdata->id]);
+            }
+        }
+    }
+
+    /**
+     * Update the database with the plugin provider data.
+     *
+     * @param array $providers The JSON decoded provider data.
+     */
+    private static function update_plugin_providers(array $providers) {
+        global $DB;
+
+        $source = 'plugin::';
+
+        // Get current providers as array indexed by name.
+        $currentproviders =
+            self::get_all_provider_data('providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified');
+
+        foreach ($providers as $provider) {
+            if (isset($currentproviders[$provider['provider_name']])) {
+                // Existing provider exists, remove for delete check.
+                unset($currentproviders[$provider['provider_name']]);
+            } else {
+                // New provider.
+                $record = new \stdClass();
+                $record->providername = $provider['provider_name'];
+                $record->providerurl = $provider['provider_url'];
+                $record->endpoints = json_encode($provider['endpoints']);
+                $record->source = $source.$provider['plugin'];
+                $record->enabled = 1;   // Enable everything by default.
+                $record->timecreated = time();
+                $record->timemodified = time();
+                $DB->insert_record('filter_oembed', $record);
+            }
+        }
+
+        // Any current plugin providers left must have been deleted if they have the same source.
+        foreach ($currentproviders as $providername => $providerdata) {
+            if (strpos($providerdata->source, $source) === 0) {
+                // Perform delete provider actions.
+                $DB->delete_record('filter_oembed', ['id' => $providerdata->id]);
+            }
+        }
     }
 
     // ---- OTHER HELPER FUNCTIONS ----
@@ -432,10 +540,10 @@ class oembed {
     }
 
     /**
-     * Get enabled provder data from the filter table and return in decode JSON format.
+     * Get enabled provder data from the filter table and return as array of data records.
      * Provider data is set when the plugin is installed, by scheduled tasks, by admin tools and
      * by subplugins.
-     * @return array JSON decoded data.
+     * @return array data records.
      */
     protected static function get_enabled_provider_data() {
         global $DB;
@@ -445,10 +553,10 @@ class oembed {
     }
 
     /**
-     * Get disabled provder data from the filter table and return in decode JSON format.
+     * Get disabled provder data from the filter table and return as array of data records.
      * Provider data is set when the plugin is installed, by scheduled tasks, by admin tools and
      * by subplugins.
-     * @return array JSON decoded data.
+     * @return array data records.
      */
     protected static function get_disabled_provider_data() {
         global $DB;
@@ -458,15 +566,17 @@ class oembed {
     }
 
     /**
-     * Get all provder data from the filter table and return in decode JSON format.
+     * Get all provder data from the filter table and return as array of data records.
      * Provider data is set when the plugin is installed, by scheduled tasks, by admin tools and
      * by subplugins.
-     * @return array JSON decoded data.
+     *
+     * @param string $fields Comma separated list of fields, the first of which is the index of the returned array.
+     * @return array data records.
      */
-    protected static function get_all_provider_data() {
+    protected static function get_all_provider_data($fields = '*') {
         global $DB;
 
         // Get providers from database. This includes sub-plugins.
-        return $DB->get_records('filter_oembed');
+        return $DB->get_records('filter_oembed', null, '', $fields);
     }
 }

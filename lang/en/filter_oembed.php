@@ -46,3 +46,4 @@ $string['subplugintype_oembedprovider'] = 'Oembed provider';
 $string['subplugintype_oembedprovider_plural'] = 'Oembed providers';
 $string['targettag'] = 'Target tag';
 $string['targettag_desc'] = 'What tag type should be filtered - anchors or divs with the oembed class.';
+$string['updateproviders'] = 'Update Oembed provider information.';
