@@ -123,9 +123,9 @@ class provider {
                 if (preg_match($regex, $text)) {
                     // If {format} is in the URL, replace it with the actual format.
 
-                    // $url2 = '&format='.$endpoint->formats[0];
-                    // $url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
-                    //        '?url='.$text.$url2;
+                    /* $url2 = '&format='.$endpoint->formats[0];
+                       $url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
+                              '?url='.$text.$url2; */
 
                     // At the moment, we're only supporting JSON, so this must be JSON.
                     $requesturl = str_replace('{format}', 'json', $endpoint->url) .
