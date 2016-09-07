@@ -97,8 +97,8 @@ class provider {
      */
     public function implementation() {
         $implarr = [
-            'provider_name' => $this->providername,
-            'provider_url' => $this->providerurl,
+            'providername' => $this->providername,
+            'providerurl' => $this->providerurl,
             'endpoints' => [],
         ];
         foreach ($this->endpoints as $endpoint) {
