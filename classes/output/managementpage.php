@@ -28,13 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 class managementpage implements \renderable, \templatable {
 
     /**
-     * An array of headings
-     *
-     * @var array
-     */
-    protected $headings;
-
-    /**
      * An array of rows
      *
      * @var array
@@ -43,15 +36,9 @@ class managementpage implements \renderable, \templatable {
 
     /**
      * Construct the renderable.
-     * @param array $titles The array of column headings.
      * @param array $content The array of rows.
      */
-    public function __construct(array $titles = array(), array $content = array()) {
-        $this->headings = array();
-        $colnum = 1;
-        foreach ($titles as $key => $title) {
-            $this->headings['title'.$colnum++] = $title;
-        }
+    public function __construct(array $content = array()) {
         foreach ($content as $key => $row) {
             $this->rows[] = $row;
         }
@@ -63,9 +50,6 @@ class managementpage implements \renderable, \templatable {
      */
     public function export_for_template(\renderer_base $output) {
         $data = [
-            'headings' => ['title1' => $this->headings['title1'],
-                           'title2' => $this->headings['title2']
-                          ],
             'rows' => []
         ];
 
