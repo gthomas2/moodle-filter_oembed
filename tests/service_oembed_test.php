@@ -36,15 +36,6 @@ defined('MOODLE_INTERNAL') || die();
 class testable_oembed extends oembed {
 
     /**
-     * Get cached providers.
-     * @param bool $ignorelifespan
-     * @return array|mixed
-     */
-    public function protected_get_cached_providers($ignorelifespan = false) {
-        return $this->get_cached_providers($ignorelifespan);
-    }
-
-    /**
      * Singleton.
      *
      * @return oembed
@@ -57,6 +48,13 @@ class testable_oembed extends oembed {
         } else {
             return new testable_oembed();
         }
+    }
+
+    /**
+     * Calls the protected download_providers function.
+     */
+    public static function protected_download_providers() {
+        return self::download_providers();
     }
 }
 /**
@@ -103,20 +101,6 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
     }
 
     /**
-     * Test cached providers.
-     */
-    public function test_get_cached_providers() {
-        $this->markTestIncomplete(
-            'This test is disabled until auto updating providers (safely) is implemented.'
-        );
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-        $oembed = testable_oembed::get_instance();
-        $providers = $oembed->protected_get_cached_providers();
-        $this->assert_providers_ok($providers);
-    }
-
-    /**
      * Test html.
      * TODO - have a local oembed service with test fixtures for performing test.
      */
@@ -149,7 +133,12 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
         $this->assertContains('<button class="btn btn-link oembed-card-play" aria-label="Play"></button>', $text);
 
     }
+
+    /**
+     * Test download providers.
+     */
+    public function test_download_providers() {
+        $providers = testable_oembed::protected_download_providers();
+        $this->assert_providers_ok($providers);
+    }
 }
-
-
-

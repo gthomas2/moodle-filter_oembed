@@ -288,7 +288,7 @@ class oembed {
 
     /**
      * Function to return a list of providers provided by the current sub plugins.
-     * Since Moodle doesn't currently support subplugins for filters, do this in this plugin.0
+     * Since Moodle doesn't currently support subplugins for filters, do this in this plugin.
      *
      * @return space array
      */
