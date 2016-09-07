@@ -372,8 +372,8 @@ class oembed {
         }
 
         // Get current providers as array indexed by name.
-        $currentproviders =
-            self::get_all_provider_data('providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified');
+        $cols = 'providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified';
+        $currentproviders = self::get_all_provider_data($cols);
 
         foreach ($providers as $provider) {
             if (isset($currentproviders[$provider['provider_name']])) {
@@ -432,8 +432,8 @@ class oembed {
         $source = 'plugin::';
 
         // Get current providers as array indexed by name.
-        $currentproviders =
-            self::get_all_provider_data('providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified');
+        $cols = 'providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified';
+        $currentproviders = self::get_all_provider_data($cols);
 
         foreach ($providers as $provider) {
             if (isset($currentproviders[$provider['provider_name']])) {
