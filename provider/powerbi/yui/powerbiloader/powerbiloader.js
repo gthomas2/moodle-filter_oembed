@@ -33,8 +33,7 @@ YUI.add('moodle-filter_oembed-powerbiloader', function (Y) {
         message = JSON.stringify(m);
         // Push the message.
         this.contentWindow.postMessage(message, "*");
-        ;
-    }
+    };
 }, '@VERSION@', {
     requires: ['base']
 });
