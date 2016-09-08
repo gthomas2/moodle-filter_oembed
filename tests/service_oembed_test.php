@@ -84,9 +84,20 @@ class filter_oembed_service_oembed_testcase extends advanced_testcase {
     public function assert_providers_ok($providers) {
         $this->assertNotEmpty($providers);
         $provider = reset($providers);
-        $this->assertNotEmpty($provider->providername);
-        $this->assertNotEmpty($provider->providerurl);
-        $this->assertNotEmpty($provider->endpoints);
+        if (is_object($provider)) {
+            // Test the provider object.
+            $this->assertNotEmpty($provider->providername);
+            $this->assertNotEmpty($provider->providerurl);
+            $this->assertNotEmpty($provider->endpoints);
+        } else if (is_array($provider)) {
+            // Test the provider decoded JSON array.
+            $this->assertArrayHasKey('provider_name', $provider);
+            $this->assertArrayHasKey('provider_url', $provider);
+            $this->assertArrayHasKey('endpoints', $provider);
+        } else {
+            // Test failed.
+            $this->assertTrue(false);
+        }
     }
 
     /**

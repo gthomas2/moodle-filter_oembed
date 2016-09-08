@@ -13,6 +13,8 @@ php:
 env:
  global:
   - MOODLE_BRANCH=master
+  - IGNORE_PATHS=amd/src/list.js
+
 
  matrix:
   - DB=pgsql
