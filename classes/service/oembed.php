@@ -233,7 +233,9 @@ class oembed {
                 $warnings[] = $e->getMessage();
                 $providers = [];
             }
+            mtrace('    Checking for updated downloads...');
             self::update_downloaded_providers($providers);
+            mtrace('    Checking for updated subplugins...');
             self::update_plugin_providers(self::get_plugin_providers());
         }
 
@@ -387,13 +389,15 @@ class oembed {
                     $change = true;
                 }
 
-                if ($currprovider->endpoints != $provider['endpoints']) {
+                $endpoints = json_encode($provider['endpoints']);
+                if ($currprovider->endpoints != $endpoints) {
                     // Perform change endpoints actions.
-                    $currprovider->endpoints = $provider['endpoints'];
+                    $currprovider->endpoints = $endpoints;
                     $change = true;
                 }
 
                 if ($change) {
+                    mtrace('      updating '.$currprovider->providername);
                     $currprovider->timemodified = time();
                     $DB->update_record('filter_oembed', $currprovider);
                 }
@@ -408,6 +412,7 @@ class oembed {
                 $record->enabled = 1;   // Enable everything by default.
                 $record->timecreated = time();
                 $record->timemodified = time();
+                mtrace('      creating '.$record->providername);
                 $DB->insert_record('filter_oembed', $record);
             }
         }
@@ -416,7 +421,8 @@ class oembed {
         foreach ($currentproviders as $providername => $providerdata) {
             if ($providerdata->source == $source) {
                 // Perform delete provider actions.
-                $DB->delete_record('filter_oembed', ['id' => $providerdata->id]);
+                mtrace('      deleting '.$providerdata->providername);
+                $DB->delete_records('filter_oembed', ['id' => $providerdata->id]);
             }
         }
     }
@@ -449,6 +455,7 @@ class oembed {
                 $record->enabled = 1;   // Enable everything by default.
                 $record->timecreated = time();
                 $record->timemodified = time();
+                mtrace('      creating '.$record->providername);
                 $DB->insert_record('filter_oembed', $record);
             }
         }
@@ -457,7 +464,8 @@ class oembed {
         foreach ($currentproviders as $providername => $providerdata) {
             if (strpos($providerdata->source, $source) === 0) {
                 // Perform delete provider actions.
-                $DB->delete_record('filter_oembed', ['id' => $providerdata->id]);
+                mtrace('      deleting '.$providerdata->providername);
+                $DB->delete_records('filter_oembed', ['id' => $providerdata->id]);
             }
         }
     }
