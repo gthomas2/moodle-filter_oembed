@@ -72,11 +72,12 @@ class oembed {
      */
     public static function get_instance($providers = 'enabled') {
         /** @var $instance oembed */
-        static $instance;
-        if ($instance) {
-            return $instance;
+        static $instance = [];
+        if (isset($instance[$providers])) {
+            return $instance[$providers];
         } else {
-            return new oembed($providers);
+            $instance[$providers] = new oembed($providers);
+            return $instance;
         }
     }
 
