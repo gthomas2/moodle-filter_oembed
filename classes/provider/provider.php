@@ -71,8 +71,8 @@ class provider {
             $data = (array)$data;
         }
         if (!empty($data)) {
-            $this->id = $data['id'];
-            $this->enabled = $data['enabled'];
+            $this->id = isset($data['id'])? $data['id'] : 0;
+            $this->enabled = isset($data['enabled']) ? $data['enabled'] : false;
             $this->providername = $data['providername'];
             $this->providerurl = $data['providerurl'];
 
