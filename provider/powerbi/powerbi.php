@@ -34,11 +34,13 @@ class powerbi extends provider {
      * @param $data JSON decoded array or a data object containing all provider data.
      */
     public function __construct($data = null) {
-        $data = [
-            'providername' => 'Power BI',
-            'providerurl' => '',
-            'endpoints' => [],
-        ];
+        if ($data === null) {
+            $data = [
+                'providername' => 'Power BI',
+                'providerurl' => '',
+                'endpoints' => [],
+            ];
+        }
         parent::__construct($data);
     }
 

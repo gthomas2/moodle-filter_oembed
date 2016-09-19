@@ -102,8 +102,28 @@ class oembed {
                 break;
         }
         foreach ($providers as $provider) {
-            $this->providers[$provider->id] = new provider($provider);
+            $this->providers[$provider->id] = $this->get_provider_instance($provider);
             $this->enabled[$provider->id] = ($provider->enabled == 1);
+        }
+    }
+
+    /**
+     * Get a provider instance using appropriate provider class.
+     *
+     * @param object $provider Data record from oembed_filter table.
+     * @return object provider Object of provider class or extended class.
+     */
+    protected function get_provider_instance($provider) {
+        global $CFG;
+
+        $pluginprefix = 'plugin::';
+        if (strpos($provider->source, $pluginprefix) === 0) {
+            $name = substr($provider->source, strlen($pluginprefix));
+            require_once($CFG->dirroot.'/filter/oembed/provider/'.$name.'/'.$name.'.php');
+            $classname = "\\filter_oembed\\provider\\{$name}";
+            return new $classname($provider);
+        } else {
+            return new provider($provider);
         }
     }
 
@@ -517,7 +537,7 @@ class oembed {
      * Get provider row from db.
      * @param int | provider $provider The provider id for which we want to retrieve.
      */
-    public function get_provider_row($provider) {
+    public static function get_provider_row($provider) {
         global $DB;
 
         if (is_object($provider)) {
@@ -551,7 +571,7 @@ class oembed {
 
         $DB->set_field('filter_oembed', 'enabled', $value, ['id' => $pid]);
         $this->enabled[$pid] = ($value == 1);
-        $this->providers[$pid]->set_enabled($value ==1);
+        $this->providers[$pid]->set_enabled($value == 1);
     }
 
     /**

@@ -33,11 +33,13 @@ class o365video extends provider {
      * @param $data JSON decoded array or a data object containing all provider data.
      */
     public function __construct($data = null) {
-        $data = [
-            'providername' => 'Office365 Video',
-            'providerurl' => '',
-            'endpoints' => [],
-        ];
+        if ($data === null) {
+            $data = [
+                'providername' => 'Office365 Video',
+                'providerurl' => '',
+                'endpoints' => [],
+            ];
+        }
         parent::__construct($data);
     }
 
