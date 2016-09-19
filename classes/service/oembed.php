@@ -413,6 +413,11 @@ class oembed {
                 $record->timecreated = time();
                 $record->timemodified = time();
                 mtrace('      creating '.$record->providername);
+                if ($DB->record_exists('filter_oembed', ['providername' => $record->providername])) {
+                    // This could only happen the first time, if two providers erroneously have the
+                    // same name.
+                    $record->providername .= ' (' . $record->providerurl . ')';
+                }
                 $DB->insert_record('filter_oembed', $record);
             }
         }
