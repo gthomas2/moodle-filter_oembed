@@ -52,31 +52,15 @@ Displayed if x was true.
 {{/x}}
 <div id="providermanagement">
     <table id="oembedproviders" class="flexible generaltable generalbox" cellspacing="0">
-      <thead>
-        <tr>
-          <th class="header c0 provider" scope="col"><input class="search" placeholder="{{#str}}provider, filter_oembed{{/str}}" /></th>
-        </tr>
-      </thead>
-      <tbody class="list">
-    {{#rows}}
-        <tr id="oembed-display-providers_{{@index}}" class="{{extraclass}}">
-          <td id="oembed-display-providers_{{@index}}_c0" class="cell c0 provider">
-              <a href="{{providerurl}}" target="_blank" class="list-providername">{{providername}}</a>
-              {{#editing}}
-              <div class="oembed-provider-details">
-                  Provider name: {{providername}}<br />
-                  Provider url: {{providerurl}}<br />
-                  Schemes: {{#schemes}} {{ . }}<br /> {{/schemes}}
-                  Source: {{source}}
-              </div>
-              {{/editing}}
-              <div class="oembed-provider-actions">
-                  {{{enableaction}}} {{{editaction}}} {{{deleteaction}}}
-              </div>
-          </td>
-        </tr>
-
-    {{/rows}}
-      </tbody>
+          <thead>
+            <tr>
+              <th class="header c0 provider" scope="col"><input class="search" placeholder="{{#str}}provider, filter_oembed{{/str}}" /></th>
+            </tr>
+          </thead>
+          <tbody class="list">
+          {{#rows}}
+              {{> filter_oembed/managementpagerow}}
+          {{/rows}}
+          </tbody>
     </table>
 </div>

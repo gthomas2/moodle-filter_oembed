@@ -65,43 +65,7 @@ $PAGE->set_heading($strmanage);
 $output = $PAGE->get_renderer('filter_oembed');
 echo $output->header();
 
-$rows = [];
-
-foreach ($oembed->providers as $prid => $provider) {
-    $row = [];
-    $row['pid'] = $prid;
-    $row['providername'] = s($provider->providername);
-    $row['providerurl'] = s($provider->providerurl);
-    $row['editaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=edit&pid=' . $prid . '&sesskey=' . sesskey();
-
-    if ($oembed->enabled[$prid]) {
-        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=disable&pid=' .
-            $prid . '&sesskey=' . sesskey();
-        $row['enabled'] = true;
-    } else {
-        $row['enableaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=enable&pid=' .
-            $prid . '&sesskey=' . sesskey();
-        $row['enabled'] = false;
-    }
-    $row['deleteaction'] = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' .
-        $prid . '&sesskey=' . sesskey();
-
-    // If edit requested, provide full provider data to the template.
-    if (($action = 'edit') && ($prid == $pid)) {
-        $row['editing'] = true;
-        $row['source'] = $DB->get_field('filter_oembed', 'source', ['id' => $pid]);
-        $endpoints = $provider->endpoints;
-        foreach ($endpoints as $endpoint) {
-            $row['schemes'] = $endpoint->schemes;
-            $row['url'] = isset($endpoint->url) ? $endpoint->url : '';
-            $row['discovery'] = isset($endpoint->discovery) ? $endpoint->discovery : '';
-            $row['formats'] = isset($endpoint->formats) ? (array)$endpoint->formats : [];
-        }
-    }
-    $rows[] = $row;
-}
-
-$managepage = new \filter_oembed\output\managementpage($rows);
+$managepage = new \filter_oembed\output\managementpage($oembed->providers);
 echo $output->render($managepage);
 
 // Finish the page.
