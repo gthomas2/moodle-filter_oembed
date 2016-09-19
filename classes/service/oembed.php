@@ -72,11 +72,12 @@ class oembed {
      */
     public static function get_instance($providers = 'enabled') {
         /** @var $instance oembed */
-        static $instance;
-        if ($instance) {
-            return $instance;
+        static $instance = [];
+        if (isset($instance[$providers])) {
+            return $instance[$providers];
         } else {
-            return new oembed($providers);
+            $instance[$providers] = new oembed($providers);
+            return $instance[$providers];
         }
     }
 
@@ -498,6 +499,7 @@ class oembed {
      * @param int | provider The provider to enable.
      */
     public function enable_provider($provider) {
+        $this->enabled[$provider] = $this->providers[$provider];
         $this->set_provider_enable_value($provider, 1);
     }
 
@@ -507,7 +509,25 @@ class oembed {
      * @param int | provider The provider to disable.
      */
     public function disable_provider($provider) {
+        unset($this->enabled[$provider]);
         $this->set_provider_enable_value($provider, 0);
+    }
+
+    /**
+     * Get provider row from db.
+     * @param int | provider $provider The provider id for which we want to retrieve.
+     */
+    public function get_provider_row($provider) {
+        global $DB;
+
+        if (is_object($provider)) {
+            $lookup = ['providername' => $provider->providername];
+        } else if (is_int($provider)) {
+            $lookup = ['id' => $provider];
+        } else {
+            throw new \coding_exception('oembed::get_provider_row requires either a provider object or a data id integer.');
+        }
+        return $DB->get_record('filter_oembed', $lookup);
     }
 
     /**
@@ -531,6 +551,7 @@ class oembed {
 
         $DB->set_field('filter_oembed', 'enabled', $value, ['id' => $pid]);
         $this->enabled[$pid] = ($value == 1);
+        $this->providers[$pid]->set_enabled($value ==1);
     }
 
     /**

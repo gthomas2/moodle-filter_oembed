@@ -22,15 +22,49 @@
 /**
  * Oembed provider management module.
  */
-define(['jquery', 'filter_oembed/list'],
-    function($, List) {
+define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'filter_oembed/list'],
+    function($, notification, ajax, templates, List) {
         return {
+
+            listenEnableDisable: function() {
+                $('#oembedproviders').on('click', '.oembed-provider-actions .action-icon.visibility', function(e) {
+                    e.preventDefault();
+
+                    var row = $(this).parents('tr')[0];
+                    var pid = $(row).data('pid');
+                    var enabled = !$(row).hasClass('dimmed_text');
+                    var action = enabled ? 'disable' : 'enable';
+
+                    ajax.call([
+                        {
+                            methodname: 'filter_oembed_provider_manage_visibility',
+                            args: {
+                                pid: pid,
+                                action: action
+                            },
+                            done: function(response) {
+                                // Update row.
+                                templates.render('filter_oembed/managementpagerow', response.providermodel)
+                                    .done(function(result) {
+                                        $(row).replaceWith(result);
+                                    });
+                            },
+                            fail: function(response) {
+                                notification.exception(response);
+                            }
+                        }
+                    ], true, true);
+                });
+            },
+
             init: function() {
                 var options = {
                     valueNames: [ 'list-providername']
                 };
 
                 new List('providermanagement', options);
+
+                this.listenEnableDisable();
             }
         };
     }

@@ -23,6 +23,8 @@
 
 namespace filter_oembed\output;
 
+use filter_oembed\provider\provider;
+
 defined('MOODLE_INTERNAL') || die();
 
 class managementpage implements \renderable, \templatable {
@@ -39,58 +41,30 @@ class managementpage implements \renderable, \templatable {
      * @param array $content The array of rows.
      */
     public function __construct(array $content = array()) {
-        foreach ($content as $key => $row) {
-            $this->rows[] = $row;
+        if (!empty($content)) {
+            foreach ($content as $key => $row) {
+                $this->rows[] = $row;
+            }
         }
     }
 
     /**
      * Export the data for template.
-     * @param
+     * @param \renderer_base $output
      */
     public function export_for_template(\renderer_base $output) {
         $data = [
             'rows' => []
         ];
 
+        if (count($this->rows) < 1) {
+            return $data;
+        }
+
         foreach ($this->rows as $row) {
-            $tmplrow = [];
-
-            $tmplrow['pid'] = $row['pid'];
-            $tmplrow['providername'] = $row['providername'];
-            $tmplrow['providerurl'] = $row['providerurl'];
-
-            // Display logic for hide/show.
-            if ($row['enabled']) {
-                $tmplrow['extraclass'] = '';
-                $tmplrow['enableaction'] = $output->action_icon($row['enableaction'],
-                    new \pix_icon('t/hide', get_string('hide')));
-            } else {
-                $tmplrow['extraclass'] = 'dimmed_text';
-                $tmplrow['enableaction'] = $output->action_icon($row['enableaction'],
-                    new \pix_icon('t/show', get_string('show')));
-            }
-
-            $tmplrow['editaction'] = $output->action_icon($row['editaction'],
-                new \pix_icon('t/edit', get_string('edit')));
-            $tmplrow['deleteaction'] = $output->action_icon($row['deleteaction'],
-                new \pix_icon('t/delete', get_string('delete')),
-                new \confirm_action(get_string('deleteproviderconfirm', 'filter_oembed')));
-
-            // If edit requested, provide full provider data to the template.
-            if (isset($row['editing']) && $row['editing']) {
-                $tmplrow['editing'] = 1;
-                $tmplrow['source'] = $row['source'];
-                $tmplrow['schemes'] = (isset($row['schemes']) ? $row['schemes'] : '');
-                $tmplrow['url'] = (isset($row['url']) ? $row['url'] : '');
-                $tmplrow['discovery'] = (isset($row['discovery']) ? $row['discovery'] : '');
-                $tmplrow['formats'] = (isset($row['formats']) ? $row['formats'] : '');
-            } else {
-                $tmplrow['editing'] = 0;
-            }
-
-            $data['rows'][] = $tmplrow;
+            $data['rows'][] = new providermodel($row);
         }
         return $data;
     }
+
 }

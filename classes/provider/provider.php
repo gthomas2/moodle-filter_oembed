@@ -31,6 +31,17 @@ namespace filter_oembed\provider;
  * Plugins can instead / additionally override "get_oembed_request", "oembed_response" and "endpoints_regex".
  */
 class provider {
+
+    /**
+     * @var int
+     */
+    protected $id;
+
+    /**
+     * @var boolean
+     */
+    protected $enabled;
+
     /**
      * @var string
      */
@@ -60,6 +71,8 @@ class provider {
             $data = (array)$data;
         }
         if (!empty($data)) {
+            $this->id = $data['id'];
+            $this->enabled = $data['enabled'];
             $this->providername = $data['providername'];
             $this->providerurl = $data['providerurl'];
 
@@ -185,7 +198,7 @@ class provider {
      * @throws \coding_exception
      */
     public function __get($name) {
-        $allowed = ['providername', 'providerurl', 'endpoints'];
+        $allowed = ['id', 'enabled', 'providername', 'providerurl', 'endpoints'];
         if (in_array($name, $allowed)) {
             return $this->$name;
         } else {
@@ -208,5 +221,13 @@ class provider {
             ];
         }
         return json_encode($endpointsarr);
+    }
+
+    /**
+     * Set enabled?
+     * @param boolean $enabled
+     */
+    public function set_enabled($enabled) {
+        $this->enabled = $enabled;
     }
 }
