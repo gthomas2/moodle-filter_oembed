@@ -53,7 +53,7 @@ class docsdotcom extends provider {
     public function get_oembed_request($text) {
         $requesturl = '';
         // Get the regex arrauy to look for matching schemes.
-        $regex = $this->endpoints_regex($endpoint);
+        $regex = $this->endpoints_regex(new endpoint());
         if (preg_match($regex, $text, $matches)) {
             $params = [
                 'url' => $matched[1]. $matched[3] . '/' . $matched[4] . '/' . $matched[5] . '/' . $matched[6],
