@@ -38,7 +38,7 @@ class testable_oembed extends oembed {
      *
      * @return oembed
      */
-    public static function get_instance($providers = 'enabled') {
+    public static function get_instance($providerstate = 'enabled') {
         /** @var $instance oembed */
         static $instance;
         if ($instance) {

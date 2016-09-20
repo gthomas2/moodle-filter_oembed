@@ -71,7 +71,7 @@ class ws_provider_manage_visibility extends \external_api {
         $providermodel = new providermodel($providerrow);
 
         return [
-            'visible' => $action === 'enable' ? 1 :0,
+            'visible' => $action === 'enable' ? 1 : 0,
             'providermodel' => $providermodel
         ];
     }

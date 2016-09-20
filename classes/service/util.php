@@ -60,7 +60,7 @@ class util {
                 if (!defined($matches[1])) {
                     throw new coding_exception('Unknown / incompatible var type '.$matches[1].' for '.$name);
                 }
-                if (count($matches)<3) {
+                if (count($matches) < 3) {
                     throw new coding_exception('Missing description for '.$name);
                 }
                 $description = $matches[2];
@@ -79,7 +79,7 @@ class util {
                 if ($hasvardoc !== 1) {
                     throw new coding_exception('Property without @var or @wsparam doc');
                 }
-                if (count($matches)<3) {
+                if (count($matches) < 3) {
                     throw new coding_exception('Missing description for '.$name);
                 }
                 $description = $matches[2];

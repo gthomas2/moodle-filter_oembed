@@ -58,36 +58,34 @@ class oembed {
     /**
      * Constructor - protected singeton.
      *
-     * @param string $providers Either 'enabled', 'disabled', or 'all'.
+     * @param string $providerstate Either 'enabled', 'disabled', or 'all'.
      */
-    protected function __construct($providers = 'enabled') {
-        $this->set_providers($providers);
+    protected function __construct($providerstate = 'enabled') {
+        $this->set_providers($providerstate);
     }
 
     /**
      * Singleton
      *
-     * @param string $providers Either 'enabled', 'disabled', or 'all'.
+     * @param string $providerstate Either 'enabled', 'disabled', or 'all'.
      * @return oembed
      */
-    public static function get_instance($providers = 'enabled') {
+    public static function get_instance($providerstate = 'enabled') {
         /** @var $instance oembed */
         static $instance = [];
-        if (isset($instance[$providers])) {
-            return $instance[$providers];
-        } else {
-            $instance[$providers] = new oembed($providers);
-            return $instance[$providers];
+        if (!isset($instance[$providerstate])) {
+            $instance[$providerstate] = new oembed($providerstate);
         }
+        return $instance[$providerstate];
     }
 
     /**
      * Set providers property.
      *
-     * @param string $providers Either 'enabled', 'disabled', or 'all'.
+     * @param string $state Either 'enabled', 'disabled', or 'all'.
      */
-    protected function set_providers($providers = 'enabled') {
-        switch ($providers) {
+    protected function set_providers($state = 'enabled') {
+        switch ($state) {
             case 'enabled':
                 $providers = self::get_enabled_provider_data();
                 break;
@@ -371,10 +369,6 @@ class oembed {
             $record->enabled = 1;   // Enable everything by default.
             $record->timecreated = time();
             $record->timemodified = time();
-            if ($DB->record_exists('filter_oembed', ['providername' => $record->providername])) {
-                // If a provider already exists with this name, append the plugin name.
-                $record->providername .= ' (' . $record->source . ')';
-            }
             $DB->insert_record('filter_oembed', $record);
         }
 
@@ -383,6 +377,7 @@ class oembed {
 
     /**
      * Update the database with the downloaded provider data.
+     * At this point, we can't depend on the Provider Name being unique, or consistent.
      *
      * @param array $providers The JSON decoded provider data.
      * @param string $source The source name for the provided providers.
@@ -394,14 +389,15 @@ class oembed {
             $source = 'download::http://oembed.com/providers.json';
         }
 
-        // Get current providers as array indexed by name.
-        $cols = 'providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified';
-        $currentproviders = self::get_all_provider_data($cols);
+        // Get current providers as array indexed by id.
+        $currentproviders = self::get_all_provider_data();
 
         foreach ($providers as $provider) {
-            if (isset($currentproviders[$provider['provider_name']])) {
-                // Existing provider exists; check for update.
-                $currprovider = $currentproviders[$provider['provider_name']];
+            // Get a matching provider if it exists.
+            $currprovider = self::match_provider_names($currentproviders, $provider);
+
+            if ($currprovider !== false) {
+                    // Existing provider exists; check for update.
                 $change = false;
 
                 if ($currprovider->providerurl != $provider['provider_url']) {
@@ -422,7 +418,8 @@ class oembed {
                     $currprovider->timemodified = time();
                     $DB->update_record('filter_oembed', $currprovider);
                 }
-                unset($currentproviders[$provider['provider_name']]);
+                unset($currentproviders[$currprovider->id]);
+
             } else {
                 // New provider.
                 $record = new \stdClass();
@@ -434,17 +431,12 @@ class oembed {
                 $record->timecreated = time();
                 $record->timemodified = time();
                 mtrace('      creating '.$record->providername);
-                if ($DB->record_exists('filter_oembed', ['providername' => $record->providername])) {
-                    // This could only happen the first time, if two providers erroneously have the
-                    // same name.
-                    $record->providername .= ' (' . $record->providerurl . ')';
-                }
                 $DB->insert_record('filter_oembed', $record);
             }
         }
 
         // Any current providers left must have been deleted if they have the same source.
-        foreach ($currentproviders as $providername => $providerdata) {
+        foreach ($currentproviders as $providerdata) {
             if ($providerdata->source == $source) {
                 // Perform delete provider actions.
                 mtrace('      deleting '.$providerdata->providername);
@@ -463,14 +455,16 @@ class oembed {
 
         $source = 'plugin::';
 
-        // Get current providers as array indexed by name.
-        $cols = 'providername,id,providerurl,endpoints,source,enabled,timecreated,timemodified';
-        $currentproviders = self::get_all_provider_data($cols);
+        // Get current providers as array.
+        $currentproviders = self::get_all_provider_data();
 
         foreach ($providers as $provider) {
-            if (isset($currentproviders[$provider['provider_name']])) {
+            // Get a matching provider if it exists.
+            $currprovider = self::match_provider_names($currentproviders, $provider);
+
+            if ($currprovider !== false) {
                 // Existing provider exists, remove for delete check.
-                unset($currentproviders[$provider['provider_name']]);
+                unset($currentproviders[$currprovider->id]);
             } else {
                 // New provider.
                 $record = new \stdClass();
@@ -487,13 +481,42 @@ class oembed {
         }
 
         // Any current plugin providers left must have been deleted if they have the same source.
-        foreach ($currentproviders as $providername => $providerdata) {
+        foreach ($currentproviders as $providerdata) {
             if (strpos($providerdata->source, $source) === 0) {
                 // Perform delete provider actions.
                 mtrace('      deleting '.$providerdata->providername);
                 $DB->delete_records('filter_oembed', ['id' => $providerdata->id]);
             }
         }
+    }
+
+    /**
+    * Static function to search an array of database records for a specific name.
+    *
+    * @param array $providerarray An array of provider data records.
+    * @param array $provider The provider information to match.
+    * @return object A data record object.
+    */
+    private static function match_provider_names($providerarray, $provider) {
+        $foundrecord = false;
+        $foundarray = [];
+        foreach ($providerarray as $providerrecord) {
+            if ($providerrecord->providername == $provider['provider_name']) {
+                $foundarray[] = $providerrecord;
+            }
+        }
+        if (count($foundarray) > 1) {
+            // If more than one with the same name, match the url. Otherwise return false.
+            foreach ($foundarray as $match) {
+                if ($match->providerurl == $provider['provider_url']) {
+                    $foundrecord = $match;
+                }
+            }
+        } else if (!empty($foundarray)) {
+            // If only one with matching name, use it.
+            $foundrecord = reset($foundarray);
+        }
+        return $foundrecord;
     }
 
     // ---- OTHER HELPER FUNCTIONS ----
@@ -535,19 +558,11 @@ class oembed {
 
     /**
      * Get provider row from db.
-     * @param int | provider $provider The provider id for which we want to retrieve.
+     * @param int $providerid The provider id for which we want to retrieve.
      */
-    public static function get_provider_row($provider) {
+    public static function get_provider_row($providerid) {
         global $DB;
-
-        if (is_object($provider)) {
-            $lookup = ['providername' => $provider->providername];
-        } else if (is_int($provider)) {
-            $lookup = ['id' => $provider];
-        } else {
-            throw new \coding_exception('oembed::get_provider_row requires either a provider object or a data id integer.');
-        }
-        return $DB->get_record('filter_oembed', $lookup);
+        return $DB->get_record('filter_oembed', ['id' => $providerid]);
     }
 
     /**

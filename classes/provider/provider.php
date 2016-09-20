@@ -71,7 +71,7 @@ class provider {
             $data = (array)$data;
         }
         if (!empty($data)) {
-            $this->id = isset($data['id'])? $data['id'] : 0;
+            $this->id = isset($data['id']) ? $data['id'] : 0;
             $this->enabled = isset($data['enabled']) ? $data['enabled'] : false;
             $this->providername = $data['providername'];
             $this->providerurl = $data['providerurl'];
@@ -204,23 +204,6 @@ class provider {
         } else {
             throw new \coding_exception($name.' is not a publicly accessible property of '.get_class($this));
         }
-    }
-
-    /**
-     * Function to turn an endpoint into JSON, since json_encode doesn't work on objects.
-     * @return JSON encoded array.
-     */
-    public function endpoints_to_json() {
-        $endpointsarr = [];
-        foreach ($this->endpoints as $endpoint) {
-            $endpointsarr[] = [
-                'schemes' => $endpoint->schemes,
-                'url' => $endpoint->url,
-                'discovery' => $endpoint->discovery,
-                'formats' => $endpoint->formats,
-            ];
-        }
-        return json_encode($endpointsarr);
     }
 
     /**

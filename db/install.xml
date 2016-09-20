@@ -19,7 +19,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="providernameix" UNIQUE="true" FIELDS="providername"/>
+        <INDEX NAME="providernameix" UNIQUE="false" FIELDS="providername"/>
       </INDEXES>
     </TABLE>
   </TABLES>

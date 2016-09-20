@@ -57,7 +57,7 @@ function xmldb_filter_oembed_upgrade($oldversion) {
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
         // Adding indexes to table filter_oembed.
-        $table->add_index('providernameix', XMLDB_INDEX_UNIQUE, array('providername'));
+        $table->add_index('providernameix', XMLDB_INDEX_NOTUNIQUE, array('providername'));
 
         // Conditionally launch create table for filter_oembed.
         if (!$dbman->table_exists($table)) {
