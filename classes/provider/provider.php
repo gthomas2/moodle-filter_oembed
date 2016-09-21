@@ -115,7 +115,12 @@ class provider {
             'endpoints' => [],
         ];
         foreach ($this->endpoints as $endpoint) {
-            $implarr['endpoints'][] = (array)$endpoint;
+            $implarr['endpoints'][] =
+                ['schemes' => $endpoint->schemes,
+                 'url' => $endpoint->url,
+                 'discovery' => $endpoint->discovery,
+                 'formats' => $endpoint->formats,
+                ];
         }
         return $implarr;
     }
@@ -179,7 +184,6 @@ class provider {
             $url1 = preg_split('/((?:https?:)?\/\/)/', $scheme);
             $url2 = preg_split('/\//', $url1[1]);
             $regexarr = [];
-
             foreach ($url2 as $url) {
                 $find = ['.', '*'];
                 $replace = ['\.', '.*?'];
