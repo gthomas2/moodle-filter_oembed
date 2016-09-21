@@ -175,7 +175,8 @@ class provider {
         }
 
         foreach ($schemes as $scheme) {
-            $url1 = preg_split('/(https?:\/\/)/', $scheme);
+            // "http[s]:" may not be present, so flag it as a non-capturing subpattern with "(?:".
+            $url1 = preg_split('/((?:https?:)?\/\/)/', $scheme);
             $url2 = preg_split('/\//', $url1[1]);
             $regexarr = [];
 

@@ -491,12 +491,12 @@ class oembed {
     }
 
     /**
-    * Static function to search an array of database records for a specific name.
-    *
-    * @param array $providerarray An array of provider data records.
-    * @param array $provider The provider information to match.
-    * @return object A data record object.
-    */
+     * Static function to search an array of database records for a specific name.
+     *
+     * @param array $providerarray An array of provider data records.
+     * @param array $provider The provider information to match.
+     * @return object A data record object.
+     */
     private static function match_provider_names($providerarray, $provider) {
         $foundrecord = false;
         $foundarray = [];

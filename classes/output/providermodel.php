@@ -142,17 +142,17 @@ class providermodel implements \renderable {
             new \confirm_action(get_string('deleteproviderconfirm', 'filter_oembed')));
 
         // If edit requested, provide full provider data to the template.
-        if (!empty($providerrow->editing)) {
-            /*$this->editing = 1;
+/*        if (!empty($providerrow->editing)) {
+            $this->editing = 1;
             $this->source = $providerrow->source;
             $optionalprops = ['schemes', 'url', 'discovery', 'formats'];
             foreach ($optionalprops as $prop) {
                 if (isset($providerrow->$prop)) {
                     $this->$prop = $providerrow->$prop;
                 }
-            }*/
+            }
         } else {
             $this->editing = 0;
-        }
+        } */
     }
 }
