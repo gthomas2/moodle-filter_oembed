@@ -96,10 +96,14 @@ class o365video extends provider {
     }
 
     /**
-     * Filter the text.
+     * Main filter function. This should only be used by subplugins, and it is preferable
+     * to not use it even then. Ideally, a provider plugin should provide a JSON oembed provider
+     * response (http://oembed.com/#section2.3) and let the main filter handle the HTML. Use this
+     * only if the HTML must be determined by the plugin. If implemented, ensure FALSE is returned
+     * if no filtering occurred.
      *
      * @param string $text Incoming text.
-     * @return string Filtered text.
+     * @return string Filtered text, or false for no changes.
      */
     public function filter($text) {
         $newtext = '';
@@ -111,6 +115,6 @@ class o365video extends provider {
             $search = '/<a\s[^>]*href="(https?:\/\/)('.$odburl.'|'.$trimedurl.')\/(.*?)"(.*?)>(.*?)<\/a>/is';
             $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
         }
-        return $newtext;
+        return (empty($newtext) || ($newtext == $text)) ? false : $newtext;
     }
 }

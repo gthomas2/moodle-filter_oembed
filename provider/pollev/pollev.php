@@ -25,9 +25,9 @@
 namespace filter_oembed\provider;
 
 /**
- * oEmbed provider implementation for ISSUU
+ * oEmbed provider implementation for Poll Everywhere
  */
-class issuu extends provider {
+class pollev extends provider {
 
     /**
      * Constructor.
@@ -36,11 +36,15 @@ class issuu extends provider {
     public function __construct($data = null) {
         if ($data === null) {
             $data = [
-                'providername' => 'ISSUU',
-                'providerurl' => 'https://issuu.com',
+                'providername' => 'Poll Everywhere',
+                'providerurl' => 'https://www.polleverywhere.com',
                 'endpoints' => [
-                    ['schemes' => ['https://issuu.com/*'],
-                    'url' => 'https://issuu.com/oembed'],
+                    ['schemes' => [
+                        'https://www.polleverywhere.com/polls/*',
+                        'https://www.polleverywhere.com/multiple_choice_polls/*',
+                        'https://www.polleverywhere.com/free_text_polls/*',
+                    ],
+                    'url' => 'https://www.polleverywhere.com/services/oembed'],
                 ],
             ];
         }

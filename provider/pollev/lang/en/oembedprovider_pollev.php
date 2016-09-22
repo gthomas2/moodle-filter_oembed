@@ -16,34 +16,9 @@
 
 /**
  * @package filter_oembed
- * @author James McQuillan <james.mcquillan@remote-learner.net>
  * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @copyright (C) 2016 onwards Microsoft, Inc. (http://microsoft.com/)
+ * @copyright 2016 The POET Group
  */
 
-namespace filter_oembed\provider;
-
-/**
- * oEmbed provider implementation for ISSUU
- */
-class issuu extends provider {
-
-    /**
-     * Constructor.
-     * @param $data JSON decoded array or a data object containing all provider data.
-     */
-    public function __construct($data = null) {
-        if ($data === null) {
-            $data = [
-                'providername' => 'ISSUU',
-                'providerurl' => 'https://issuu.com',
-                'endpoints' => [
-                    ['schemes' => ['https://issuu.com/*'],
-                    'url' => 'https://issuu.com/oembed'],
-                ],
-            ];
-        }
-        parent::__construct($data);
-    }
-}
+$string['pluginname'] = 'Poll Everywhere';

@@ -89,16 +89,17 @@ class filter_oembed_testcase extends advanced_testcase {
         $tedoutput = '/.*<iframe .*src="https:\/\/embed\.ted\.com\/talks\/aj_jacobs_how_healthy_living_nearly_killed_me".*/';
         $this->assertRegExp($tedoutput, $filteroutput, 'Ted filter fails');
 
-        $issuuoutput = '/.*<div data-url="https:\/\/issuu\.com\/thinkuni\/docs\/think_issue12" .*';
-        $issuuoutput .= 'class="issuuembed"><\/div>.*/';
-        $this->assertRegExp($issuuoutput, $filteroutput, 'Issuu filter fails');
-
-/*        $polleverywhereoutput = '<script src="http://www.polleverywhere.com/multiple_choice_polls/AyCp2jkJ2HqYKXc/web.js';
-        $polleverywhereoutput .= '?results_count_format=percent"></script>';
-        $this->assertContains($polleverywhereoutput, $filteroutput, 'Poll everywhare filter fails'); */
+        $polleverywhereoutput = '/.*<script src="https:\/\/www\.polleverywhere\.com\/'.
+                                'multiple_choice_polls\/AyCp2jkJ2HqYKXc\/web\.js'.
+                                '\?results_count_format=percent"><\/script>.*/';
+        $this->assertRegExp($polleverywhereoutput, $filteroutput, 'Poll everywhare filter fails');
 
         $slideshareoutput = '/.*<iframe .*src="https:\/\/www\.slideshare\.net\/slideshow\/embed_code\/key\/ywBrCQRAE5DZrD".*/';
         $this->assertRegExp($slideshareoutput, $filteroutput, 'Slidershare filter fails');
+
+        $issuuoutput = '/.*<div data-url="https:\/\/issuu\.com\/thinkuni\/docs\/think_issue12" .*';
+        $issuuoutput .= 'class="issuuembed"><\/div>.*/';
+        $this->assertRegExp($issuuoutput, $filteroutput, 'Issuu filter fails');
     }
 
     /**

@@ -94,7 +94,8 @@ class provider {
      * Main filter function. This should only be used by subplugins, and it is preferable
      * to not use it even then. Ideally, a provider plugin should provide a JSON oembed provider
      * response (http://oembed.com/#section2.3) and let the main filter handle the HTML. Use this
-     * only if the HTML must be determined by the plugin.
+     * only if the HTML must be determined by the plugin. If implemented, ensure FALSE is returned
+     * if no filtering occurred.
      *
      * @param string $text Incoming text.
      * @return string Filtered text, or false for no changes.
@@ -115,12 +116,12 @@ class provider {
             'endpoints' => [],
         ];
         foreach ($this->endpoints as $endpoint) {
-            $implarr['endpoints'][] =
-                ['schemes' => $endpoint->schemes,
-                 'url' => $endpoint->url,
-                 'discovery' => $endpoint->discovery,
-                 'formats' => $endpoint->formats,
-                ];
+            $implarr['endpoints'][] = [
+                'schemes' => $endpoint->schemes,
+                'url' => $endpoint->url,
+                'discovery' => $endpoint->discovery,
+                'formats' => $endpoint->formats,
+            ];
         }
         return $implarr;
     }
@@ -136,7 +137,6 @@ class provider {
         foreach ($this->endpoints as $endpoint) {
             // Get the regex arrauy to look for matching schemes.
             $regexarr = $this->endpoints_regex($endpoint);
-
             foreach ($regexarr as $regex) {
                 if (preg_match($regex, $text)) {
                     // If {format} is in the URL, replace it with the actual format.
