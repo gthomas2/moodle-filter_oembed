@@ -70,8 +70,7 @@ class officeforms extends provider {
      * @return string Filtered text, or false for no changes.
      */
     public function filter($text) {
-        $search = '/<a\s[^>]*href="(https?:\/\/(www\.)?)(forms\.office\.com)\/' .
-            '(.+?)\/(DesignPage\.aspx)#FormId=(.+?)"(.*?)>(.*?)<\/a>/is';
+        $search = '/(https?:\/\/(www\.)?)(forms\.office\.com)\/(.+?)\/(DesignPage\.aspx)#FormId=(.+?)/is';
         $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
         return (empty($newtext) || ($newtext == $text)) ? false : $newtext;
     }

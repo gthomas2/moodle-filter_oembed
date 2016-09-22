@@ -79,7 +79,7 @@ class powerbi extends provider {
      * @return string Filtered text, or false for no changes.
      */
     public function filter($text) {
-        $search = '/<a\s[^>]*href="(https?:\/\/(app\.)?)(powerbi\.com)\/(.+?)\/(.+?)\/(.+?)\/(.+?)\/(.+?)"(.*?)>(.*?)<\/a>/is';
+        $search = '/(https?:\/\/(app\.)?)(powerbi\.com)\/(.+?)\/(.+?)\/(.+?)\/(.+?)\/(.+?)/is';
         $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
         return (empty($newtext) || ($newtext == $text)) ? false : $newtext;
     }
