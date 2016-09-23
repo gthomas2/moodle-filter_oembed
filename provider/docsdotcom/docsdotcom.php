@@ -74,6 +74,6 @@ class docsdotcom extends provider {
      * @return array Array of regular expressions matching all endpoints and schemes.
      */
     protected function endpoints_regex(endpoint $endpoint) {
-        return '/<a\s[^>]*href="(https?:\/\/(www\.)?)(docs\.com)\/(.+?)\/(.+?)\/(.+?)"(.*?)>(.*?)<\/a>/is';
+        return '/(https?:\/\/(www\.)?)(docs\.com)\/(.+?)\/(.+?)\/(.+?)/is';
     }
 }

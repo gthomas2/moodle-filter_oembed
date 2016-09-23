@@ -29,12 +29,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/filter/oembed/tests/testable_oembed.php');
 require_once($CFG->dirroot . '/filter/oembed/filter.php');
 
 /**
  * @group filter_oembed
- * @group office365
  */
 class filter_oembed_testcase extends advanced_testcase {
 
@@ -100,99 +98,5 @@ class filter_oembed_testcase extends advanced_testcase {
         $issuuoutput = '/.*<div data-url="https:\/\/issuu\.com\/thinkuni\/docs\/think_issue12" .*';
         $issuuoutput .= 'class="issuuembed"><\/div>.*/';
         $this->assertRegExp($issuuoutput, $filteroutput, 'Issuu filter fails');
-    }
-
-    /**
-     * Test instance.
-     */
-    public function test_instance() {
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-        $oembed = testable_oembed::get_instance();
-        $this->assertNotEmpty($oembed);
-    }
-
-    /**
-     * Make sure providers array is correct.
-     * @param array $providers
-     */
-    public function assert_providers_ok($providers) {
-        $this->assertNotEmpty($providers);
-        $provider = reset($providers);
-        if (is_object($provider)) {
-            // Test the provider object.
-            $this->assertNotEmpty($provider->providername);
-            $this->assertNotEmpty($provider->providerurl);
-            $this->assertNotEmpty($provider->endpoints);
-        } else if (is_array($provider)) {
-            // Test the provider decoded JSON array.
-            $this->assertArrayHasKey('provider_name', $provider);
-            $this->assertArrayHasKey('provider_url', $provider);
-            $this->assertArrayHasKey('endpoints', $provider);
-        } else {
-            // Test failed.
-            $this->assertTrue(false);
-        }
-    }
-
-    /**
-     * Test providers.
-     */
-    public function test_providers() {
-        $this->resetAfterTest(true);
-        $this->setAdminUser();
-        $oembed = testable_oembed::get_instance();
-        $providers = $oembed->providers;
-        $this->assert_providers_ok($providers);
-    }
-
-    /**
-     * Test html.
-     * TODO - have a local oembed service with test fixtures for performing test.
-     */
-    public function test_embed_html() {
-        $this->resetAfterTest(true);
-        set_config('lazyload', 0, 'filter_oembed');
-        $this->setAdminUser();
-        $oembed = testable_oembed::get_instance();
-        $text = $oembed->html_output('https://www.youtube.com/watch?v=Dsws8T9_cEE');
-        $expectedtext = '<div class="oembed-content"><iframe width="480" height="270"' .
-            ' src="https://www.youtube.com/embed/Dsws8T9_cEE?feature=oembed"' .
-            ' frameborder="0" allowfullscreen></iframe></div>';
-        $this->assertEquals($expectedtext, $text);
-    }
-
-    /**
-     * Test lazy load html.
-     * TODO - have a local oembed service with test fixtures for performing test.
-     */
-    public function test_preloader_html() {
-        $this->resetAfterTest(true);
-        set_config('lazyload', 1, 'filter_oembed');
-        $this->setAdminUser();
-        $oembed = testable_oembed::get_instance();
-        $text = $oembed->html_output('https://www.youtube.com/watch?v=Dsws8T9_cEE');
-        $this->assertContains('<div class="oembed-card-container">', $text);
-        $this->assertRegExp('/<div class="oembed-card" style="(?:.*)" data-embed="(?:.*)"(?:.*)' .
-            'data-aspect-ratio = "(?:.*)"(?:.*)>/is', $text);
-        $this->assertRegExp('/<div class="oembed-card-title">(?:.*)<\/div>/', $text);
-        $this->assertContains('<button class="btn btn-link oembed-card-play" aria-label="Play"></button>', $text);
-
-    }
-
-    /**
-     * Test download providers.
-     */
-    public function test_download_providers() {
-        $providers = testable_oembed::protected_download_providers();
-        $this->assert_providers_ok($providers);
-    }
-
-    /**
-     * Test get local providers.
-     */
-    public function test_get_local_providers() {
-        $providers = testable_oembed::protected_get_local_providers();
-        $this->assert_providers_ok($providers);
     }
 }

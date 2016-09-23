@@ -34,18 +34,25 @@ use filter_oembed\service\oembed;
 class testable_oembed extends oembed {
 
     /**
-     * Singleton.
+     * Singleton
      *
+     * @param string $providerstate Either 'enabled', 'disabled', or 'all'.
      * @return oembed
      */
     public static function get_instance($providerstate = 'enabled') {
         /** @var $instance oembed */
-        static $instance;
-        if ($instance) {
-            return $instance;
-        } else {
-            return new testable_oembed();
+        static $instance = [];
+        if (!isset($instance[$providerstate])) {
+            $instance[$providerstate] = new testable_oembed($providerstate);
         }
+        return $instance[$providerstate];
+    }
+
+    /**
+     * Calls the protected set_providers function.
+     */
+    public function protected_set_providers($state = 'enabled') {
+        return self::set_providers($state);
     }
 
     /**
@@ -61,4 +68,33 @@ class testable_oembed extends oembed {
     public static function protected_get_local_providers() {
         return self::get_local_providers();
     }
+
+    /**
+     * Calls the protected get_plugin_providers function.
+     */
+    public static function protected_get_plugin_providers() {
+        return self::get_plugin_providers();
+    }
+
+    /**
+     * Calls the protected match_provider_names function.
+     */
+    public static function protected_match_provider_names($providerarray, $provider) {
+        return self::match_provider_names($providerarray, $provider);
+    }
+
+    /**
+     * Empty the properties variable.
+     */
+    public function empty_providers() {
+        $this->providers = [];
+    }
+
+    /**
+     * Calls the protected get_all_provider_data function.
+     */
+    public static function protected_get_all_provider_data($fields = '*') {
+        return self::get_all_provider_data($fields);
+    }
+
 }
