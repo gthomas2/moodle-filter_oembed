@@ -125,6 +125,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
      * Test download providers.
      */
     public function test_download_providers() {
+        $this->resetAfterTest(true);
         $providers = testable_oembed::protected_download_providers();
         $this->assert_providers_ok($providers);
     }
@@ -133,6 +134,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
      * Test get local providers.
      */
     public function test_get_local_providers() {
+        $this->resetAfterTest(true);
         $providers = testable_oembed::protected_get_local_providers();
         $this->assert_providers_ok($providers);
     }
@@ -141,6 +143,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
      * Test get plugin providers.
      */
     public function test_get_plugin_providers() {
+        $this->resetAfterTest(true);
         $providers = testable_oembed::protected_get_plugin_providers();
         $this->assert_providers_ok($providers);
     }
@@ -149,6 +152,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
      * Test match_provider_names.
      */
     public function test_match_provider_names() {
+        $this->resetAfterTest(true);
         $providerdata = [
             (object)['id' => 1, 'providername' => 'Alpha1', 'providerurl' => 'http://www.one.com',
                      'endpoints' => '', 'source' => '', 'enabled' => 1, 'timecreated' => 0, 'timemodified' => 0],
@@ -160,7 +164,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
 
         // Test that more than one of the same name, returns matching URL.
         $provider = ['provider_name' => 'Alpha1', 'provider_url' => 'http://www.another.com',
-                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']],]];
+                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']]]];
         $matched = testable_oembed::protected_match_provider_names($providerdata, $provider);
         $this->assertTrue(is_object($matched));
         $this->assertEquals(2, $matched->id);
@@ -168,7 +172,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
 
         // Test that only one of the name, returns the one regardless of URL.
         $provider = ['provider_name' => 'Beta1', 'provider_url' => 'http://notthesameurl.com',
-                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']],]];
+                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']]]];
         $matched = testable_oembed::protected_match_provider_names($providerdata, $provider);
         $this->assertTrue(is_object($matched));
         $this->assertEquals(3, $matched->id);
@@ -176,14 +180,65 @@ class filter_oembed_service_testcase extends advanced_testcase {
 
         // Test that more than one of the same name, and no matching URL, returns false.
         $provider = ['provider_name' => 'Alpha1', 'provider_url' => 'http://www.anewone.com',
-                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']],]];
+                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']]]];
         $matched = testable_oembed::protected_match_provider_names($providerdata, $provider);
         $this->assertFalse($matched);
 
         // Test that no matching name returns false.
         $provider = ['provider_name' => 'Delta1', 'provider_url' => 'http://www.delta.com',
-                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']],]];
+                     'endpoints' => [['schemes' => [''], 'url' => '', 'formats' => ['']]]];
         $matched = testable_oembed::protected_match_provider_names($providerdata, $provider);
         $this->assertFalse($matched);
+    }
+
+    /**
+     * Test the "__get" magic method.
+     */
+    public function test_get() {
+        $this->resetAfterTest(true);
+        $oembed = testable_oembed::get_instance();
+
+        try {
+            $providers = $oembed->providers;
+            $this->assert_providers_ok($providers);
+        } catch (Exception $e) {
+            $this->assertTrue(false);
+        }
+
+        try {
+            $warnings = $oembed->warnings;
+            $this->assertTrue(is_array($warnings));
+        } catch (Exception $e) {
+            $this->assertTrue(false);
+        }
+
+        try {
+            $noaccess = $oembed->noaccess;
+            $this->assertTrue(false);
+        } catch (coding_exception $e) {
+            $expectedmessage = 'Coding error detected, it must be fixed by a programmer: ' .
+                               'noaccess is not a publicly accessible property of testable_oembed';
+            $this->assertEquals($expectedmessage, $e->getMessage());
+        }
+    }
+
+    /**
+     * Test enable and disable provider functions.
+     * Tests: enable_provider, disable_provider, set_provider_enable_value.
+     */
+    public function test_enable_disable_provider() {
+        $this->resetAfterTest(true);
+        $oembed = testable_oembed::get_instance();
+
+        // Test by object.
+        $providers = $oembed->providers;
+        $provider = reset($providers);
+        $this->assertTrue($oembed->providers[$provider->id]->enabled == 1);
+        $oembed->disable_provider($provider);
+        $this->assertFalse($oembed->providers[$provider->id]->enabled);
+
+        // Test by id.
+        $oembed->enable_provider($provider->id);
+        $this->assertTrue($oembed->providers[$provider->id]->enabled);
     }
 }

@@ -51,11 +51,6 @@ class oembed {
     protected $providers = [];
 
     /**
-     * @var array Boolean array of provider id's enabled status.
-     */
-    protected $enabled = [];
-
-    /**
      * Constructor - protected singeton.
      *
      * @param string $providerstate Either 'enabled', 'disabled', or 'all'.
@@ -101,7 +96,6 @@ class oembed {
         }
         foreach ($providers as $provider) {
             $this->providers[$provider->id] = $this->get_provider_instance($provider);
-            $this->enabled[$provider->id] = ($provider->enabled == 1);
         }
     }
 
@@ -529,7 +523,7 @@ class oembed {
      * @throws \coding_exception
      */
     public function __get($name) {
-        $allowed = ['providers', 'warnings', 'enabled'];
+        $allowed = ['providers', 'warnings'];
         if (in_array($name, $allowed)) {
             return $this->$name;
         } else {
@@ -543,7 +537,6 @@ class oembed {
      * @param int | provider The provider to enable.
      */
     public function enable_provider($provider) {
-        $this->enabled[$provider] = $this->providers[$provider];
         $this->set_provider_enable_value($provider, 1);
     }
 
@@ -553,7 +546,6 @@ class oembed {
      * @param int | provider The provider to disable.
      */
     public function disable_provider($provider) {
-        unset($this->enabled[$provider]);
         $this->set_provider_enable_value($provider, 0);
     }
 
@@ -578,7 +570,7 @@ class oembed {
         if (is_object($provider)) {
             $lookup = ['providername' => $provider->providername];
             $pid = $DB->get_field('filter_oembed', 'id', $lookup);
-        } else if (is_int($provider)) {
+        } else if (is_int($provider) || is_numeric($provider)) {
             $lookup = ['id' => $provider];
             $pid = $provider;
         } else {
@@ -586,7 +578,6 @@ class oembed {
         }
 
         $DB->set_field('filter_oembed', 'enabled', $value, ['id' => $pid]);
-        $this->enabled[$pid] = ($value == 1);
         $this->providers[$pid]->set_enabled($value == 1);
     }
 
