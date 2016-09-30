@@ -31,14 +31,6 @@ $functions = [
         'type'          => 'write',
         'ajax'          => true,
         'loginrequired' => true
-    ],
-    'filter_oembed_provider_edit' => [
-        'classname'     => 'filter_oembed\\webservice\\ws_provider_edit',
-        'methodname'    => 'service',
-        'description'   => 'Edit provider',
-        'type'          => 'write',
-        'ajax'          => true,
-        'loginrequired' => true
     ]
 ];
 

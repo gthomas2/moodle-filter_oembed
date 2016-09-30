@@ -76,8 +76,13 @@
     display: none;
 }
 
-tr.oembed-provider-editing .oembed-provider-details {
-    display: block;
+tr.oembed-provider-editing {
+    .oembed-provider-details {
+        display: block;
+    }
+    .oembed-provider-actions {
+        display: none;
+    }
 }
 
 .oembed-provider-actions {

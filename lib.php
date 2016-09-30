@@ -30,18 +30,53 @@ use filter_oembed\forms\provider;
  * @return string
  */
 function filter_oembed_output_fragment_provider($args) {
+    global $OUTPUT;
 
-    if (!$args['jsonformdata']) {
-        die ('form data missing');
+    $oembed = \filter_oembed\service\oembed::get_instance('all');
+
+    $data = null;
+    $ajaxdata = null;
+    if ($args['formdata']) {
+        $data = [];
+        parse_str($args['formdata'], $data);
+        if ($data) {
+            $ajaxdata = $data;
+        }
+    } else {
+        if (!isset($args['pid'])) {
+            throw new coding_exception('missing "pid" param');
+        } else {
+            $data = $oembed->get_provider_row($args['pid']);
+            if (!$data) {
+                throw new coding_exception('Invalid "pid" param', $args['pid']);
+            }
+            $data = (array) $data;
+        }
     }
 
-    $data = json_decode($args['jsonformdata']);
-    if ($data) {
-        $data = $data[0];
+    if (!isset($ajaxdata['enabled'])) {
+        $ajaxdata['enabled'] = 0;
     }
-
-    $form = new provider(null, null, 'post', '', null, true, (array) $data);
+    $form = new provider(null, null, 'post', '', null, true, $ajaxdata);
+    $form->validate_defined_fields(true);
     $form->set_data($data);
-    return $form->render();
+
+    $msg = '';
+    if (!empty($ajaxdata)) {
+        if ($form->is_validated()) {
+            $success = $oembed->update_provider_row($ajaxdata);
+            // TODO - localize.
+            if ($success) {
+                // TODO - WHY IS OUTPUT FAILING TO RETURN ANYTHING FROM THE NOTIFICATION FUNCTION!!!!!??????
+                //$msg = $OUTPUT->notification('Successfully updated provider row', 'notifysuccess');
+                $msg = '<div class="alert alert-success">Successfully updated provider row !</div>';
+            } else {
+                //$msg = $OUTPUT->notification('Failed to update provider row', 'notifyproblem');
+                $msg = '<div class="alert alert-danger">Failed to update provider row !</div>';
+            }
+        }
+    }
+
+    return $form->render().$msg;
     
 }

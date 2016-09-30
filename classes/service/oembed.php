@@ -555,9 +555,19 @@ class oembed {
      * @param int $providerid The provider id for which we want to retrieve.
      * @return providerrow
      */
-    public static function get_provider_row($providerid) {
+    public function get_provider_row($providerid) {
         global $DB;
         return new providerrow($DB->get_record('filter_oembed', ['id' => $providerid]));
+    }
+
+    /**
+     * Update provider row.
+     * @param array|object $providerdata
+     * @return bool
+     */
+    public function update_provider_row($providerdata) {
+        global $DB;
+        return $DB->update_record('filter_oembed', $providerdata);
     }
 
     /**
