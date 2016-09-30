@@ -30,7 +30,7 @@ use filter_oembed\forms\provider;
  * @return string
  */
 function filter_oembed_output_fragment_provider($args) {
-    global $OUTPUT;
+    global $OUTPUT, $CFG;
 
     $oembed = \filter_oembed\service\oembed::get_instance('all');
 
@@ -57,7 +57,8 @@ function filter_oembed_output_fragment_provider($args) {
     if (!isset($ajaxdata['enabled'])) {
         $ajaxdata['enabled'] = 0;
     }
-    $form = new provider(null, null, 'post', '', null, true, $ajaxdata);
+    $actionurl = $CFG->wwwroot.'/filter/oembed/manageproviders.php';
+    $form = new provider($actionurl, null, 'post', '', null, true, $ajaxdata);
     $form->validate_defined_fields(true);
     $form->set_data($data);
 
