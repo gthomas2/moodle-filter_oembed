@@ -15,33 +15,40 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * General lib file
+ * Base class for classes which map to db tables.
  * @author    Guy Thomas <gthomas@moodlerooms.com>
  * @copyright Copyright (c) 2016 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use filter_oembed\forms\provider;
+namespace filter_oembed\db;
+use stdClass;
 
-/**
- * Serve the edit form as a fragment.
- *
- * @param array $args List of named arguments for the fragment loader.
- * @return string
- */
-function filter_oembed_output_fragment_provider($args) {
+defined('MOODLE_INTERNAL') || die();
 
-    if (!$args['jsonformdata']) {
-        die ('form data missing');
+class abstract_dbrow {
+
+    /**
+     * anstract_dbrow constructor.
+     * @param stdClass $row
+     */
+    function __construct($row) {
+
+        if (!$row) {
+            throw new \coding_exception('$row does not exist');
+        }
+
+        if (!$row instanceof stdClass) {
+            throw new \coding_exception('$row must be an instance of std class', var_export($row, true));
+        }
+
+        $vars = array_keys(get_object_vars($this));
+
+        foreach ($row as $key => $val) {
+            if (!in_array($key, $vars)) {
+                throw new \coding_exception('Row model '.get_class($this).' is missing key '.$key);
+            }
+            $this->$key = $val;
+        }
     }
-
-    $data = json_decode($args['jsonformdata']);
-    if ($data) {
-        $data = $data[0];
-    }
-
-    $form = new provider(null, null, 'post', '', null, true, (array) $data);
-    $form->set_data($data);
-    return $form->render();
-    
 }

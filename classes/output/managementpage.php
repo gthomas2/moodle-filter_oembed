@@ -23,7 +23,7 @@
 
 namespace filter_oembed\output;
 
-use filter_oembed\provider\provider;
+use filter_oembed\db\providerrow;
 
 defined('MOODLE_INTERNAL') || die();
 

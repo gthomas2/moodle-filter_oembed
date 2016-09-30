@@ -25,6 +25,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace filter_oembed\service;
+use filter_oembed\db\providerrow;
 use filter_oembed\provider\provider;
 
 defined('MOODLE_INTERNAL') || die();
@@ -552,10 +553,11 @@ class oembed {
     /**
      * Get provider row from db.
      * @param int $providerid The provider id for which we want to retrieve.
+     * @return providerrow
      */
     public static function get_provider_row($providerid) {
         global $DB;
-        return $DB->get_record('filter_oembed', ['id' => $providerid]);
+        return new providerrow($DB->get_record('filter_oembed', ['id' => $providerid]));
     }
 
     /**

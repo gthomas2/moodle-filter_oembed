@@ -15,30 +15,55 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Services
- * @author    Guy Thomas
- * @copyright Copyright (c) 2016 Moodlerooms Inc. (http://www.moodlerooms.com)
+ * Provider Row.
+ * @author    Guy Thomas <gthomas@moodlerooms.com>
+ * @copyright Copyright (c) 2016 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace filter_oembed\db;
+
 defined('MOODLE_INTERNAL') || die();
 
-$functions = [
-    'filter_oembed_provider_manage_visibility' => [
-        'classname'     => 'filter_oembed\\webservice\\ws_provider_manage_visibility',
-        'methodname'    => 'service',
-        'description'   => 'Manage provider visibility',
-        'type'          => 'write',
-        'ajax'          => true,
-        'loginrequired' => true
-    ],
-    'filter_oembed_provider_edit' => [
-        'classname'     => 'filter_oembed\\webservice\\ws_provider_edit',
-        'methodname'    => 'service',
-        'description'   => 'Edit provider',
-        'type'          => 'write',
-        'ajax'          => true,
-        'loginrequired' => true
-    ]
-];
+class providerrow extends abstract_dbrow{
+    /**
+     * @var int id
+     */
+    public $id;
 
+    /**
+     * @var str provider name
+     */
+    public $providername;
+
+    /**
+     * @var str provider url
+     */
+    public $providerurl;
+
+    /**
+     * @var str end points
+     */
+    public $endpoints;
+
+    /**
+     * @var str source
+     */
+    public $source;
+
+    /**
+     * @var bool enabled status
+     */
+    public $enabled;
+
+    /**
+     * @var int time created
+     */
+    public $timecreated;
+
+    /**
+     * @var int time modified
+     */
+    public $timemodified;
+
+}

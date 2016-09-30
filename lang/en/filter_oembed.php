@@ -34,6 +34,7 @@ $string['cachelifespan_weekly'] = '1 week';
 $string['connection_error'] = 'Error connecting to external provider, please try reloading the page.';
 $string['deleteproviderconfirm'] = 'Are you sure you want to delete this provider?';
 $string['divtag'] = 'Filter on &lt; div &gt; tags';
+$string['enabled'] = 'Enabled';
 $string['endpoints'] = 'End points';
 $string['lazyload'] = 'Delay Embed Loading (Lazyload)';
 $string['manageproviders'] = 'Manage providers';

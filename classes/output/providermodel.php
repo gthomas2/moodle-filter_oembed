@@ -24,6 +24,7 @@
 namespace filter_oembed\output;
 
 use filter_oembed\service\oembed;
+use filter_oembed\db\providerrow;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -98,57 +99,59 @@ class providermodel implements \renderable {
      */
     public $formats;
 
-    public function __construct($providerrow) {
+    /**
+     * providermodel constructor.
+     * @param mixed $provider
+     */
+    public function __construct($provider) {
         global $PAGE, $CFG, $DB;
         $PAGE->set_context(\context_system::instance());
         $output = $PAGE->get_renderer('filter_oembed', null, RENDERER_TARGET_GENERAL);
 
-        $providerrow = (object) $providerrow;
+        $provider = (object) $provider;
 
-        $oembed = \filter_oembed\service\oembed::get_instance('all');
-
-        $this->pid = $providerrow->id;
-        $this->providername = $providerrow->providername;
-        $this->providerurl = $providerrow->providerurl;
-        if ($providerrow->enabled) {
+        $this->pid = $provider->id;
+        $this->providername = $provider->providername;
+        $this->providerurl = $provider->providerurl;
+        if ($provider->enabled) {
 
             // Disable action.
             $this->enabled = true;
             $this->extraclass = '';
             $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=disable&pid=' .
-                    $providerrow->id . '&sesskey=' . sesskey();
+                    $provider->id . '&sesskey=' . sesskey();
             $this->enableaction = $output->action_icon($action,
-                new \pix_icon('t/hide', get_string('hide')), null, ['class' => 'action-icon visibility']);
+                new \pix_icon('t/hide', get_string('hide')), null, ['class' => 'action-icon filter-oembed-visibility']);
         } else {
 
             // Enable action.
             $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=enable&pid=' .
-                    $providerrow->id . '&sesskey=' . sesskey();
+                    $provider->id . '&sesskey=' . sesskey();
             $this->extraclass = 'dimmed_text';
             $this->enableaction = $output->action_icon($action,
-                new \pix_icon('t/show', get_string('show')), null, ['class' => 'action-icon visibility']);
+                new \pix_icon('t/show', get_string('show')), null, ['class' => 'action-icon filter-oembed-visibility']);
         }
 
         // Edit action.
-        $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=edit&pid=' . $providerrow->id . '&sesskey=' . sesskey();
+        $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=edit&pid=' . $provider->id . '&sesskey=' . sesskey();
         $this->editaction = $output->action_icon($action,
-            new \pix_icon('t/edit', get_string('edit')));
+            new \pix_icon('t/edit', get_string('edit')), null, ['class' => 'action-icon filter-oembed-edit']);
 
         // Delete action.
         $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' .
-            $providerrow->id . '&sesskey=' . sesskey();
+            $provider->id . '&sesskey=' . sesskey();
         $this->deleteaction = $output->action_icon($action,
             new \pix_icon('t/delete', get_string('delete')),
             new \confirm_action(get_string('deleteproviderconfirm', 'filter_oembed')));
 
         // If edit requested, provide full provider data to the template.
-        /* if (!empty($providerrow->editing)) {
+        /* if (!empty($provider->editing)) {
             $this->editing = 1;
-            $this->source = $providerrow->source;
+            $this->source = $provider->source;
             $optionalprops = ['schemes', 'url', 'discovery', 'formats'];
             foreach ($optionalprops as $prop) {
-                if (isset($providerrow->$prop)) {
-                    $this->$prop = $providerrow->$prop;
+                if (isset($provider->$prop)) {
+                    $this->$prop = $provider->$prop;
                 }
             }
         } else {

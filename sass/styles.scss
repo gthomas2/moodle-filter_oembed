@@ -73,8 +73,12 @@
 .oembed-provider-details {
     font-size: 0.9em;
     margin-top: 1em;
+    display: none;
 }
 
+tr.oembed-provider-editing .oembed-provider-details {
+    display: block;
+}
 
 .oembed-provider-actions {
     float: right;
