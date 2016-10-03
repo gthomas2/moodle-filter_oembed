@@ -24,10 +24,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'filter_oembed_provider_manage_visibility' => [
-        'classname'     => 'filter_oembed\\webservice\\ws_provider_manage_visibility',
+    'filter_oembed_provider_manage' => [
+        'classname'     => 'filter_oembed\\webservice\\ws_provider_manage',
         'methodname'    => 'service',
-        'description'   => 'Manage provider visibility',
+        'description'   => 'Manage provider visibility / reload',
         'type'          => 'write',
         'ajax'          => true,
         'loginrequired' => true

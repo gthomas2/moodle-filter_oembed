@@ -29,14 +29,14 @@ require_once(__DIR__ . '/../../../../lib/externallib.php');
  * @copyright Copyright (c) 2016 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ws_provider_manage_visibility extends \external_api {
+class ws_provider_manage extends \external_api {
     /**
      * @return \external_function_parameters
      */
     public static function service_parameters() {
         $parameters = [
             'pid' => new \external_value(PARAM_INT, 'Provider id', VALUE_REQUIRED),
-            'action' => new \external_value(PARAM_ALPHA, 'Action: enable / disable', VALUE_REQUIRED)
+            'action' => new \external_value(PARAM_ALPHA, 'Action: enable / disable / reload', VALUE_REQUIRED)
         ];
         return new \external_function_parameters($parameters);
     }
@@ -47,10 +47,14 @@ class ws_provider_manage_visibility extends \external_api {
     public static function service_returns() {
         $keys = [
             'visible' => new \external_value(PARAM_INT, 'Provider visibility', VALUE_REQUIRED),
-            'providermodel' => new \external_single_structure(util::define_class_for_webservice('filter_oembed\output\providermodel'))
+            'providermodel' => new \external_single_structure(
+                util::define_class_for_webservice('filter_oembed\output\providermodel'),
+                'Provider renderable',
+                VALUE_REQUIRED
+            )
         ];
 
-        return new \external_single_structure($keys, 'visibility');
+        return new \external_single_structure($keys, 'provider');
     }
 
     /**
@@ -61,17 +65,24 @@ class ws_provider_manage_visibility extends \external_api {
     public static function service($pid, $action) {
         $oembed = \filter_oembed\service\oembed::get_instance('all');
 
-        if ($action === 'enable') {
-            $oembed->enable_provider($pid);
-        } else {
-            $oembed->disable_provider($pid);
+        if ($action === 'enable' || $action === 'disable') {
+            if ($action === 'enable') {
+                $oembed->enable_provider($pid);
+            } else {
+                $oembed->disable_provider($pid);
+            }
         }
 
         $providerrow = $oembed->get_provider_row($pid);
         $providermodel = new providermodel($providerrow);
 
+        $visible = intval($providerrow->enabled);
+        if ($action === 'enable' || $action === 'disable') {
+            $visible = $action === 'enable' ? 1 : 0;
+        }
+
         return [
-            'visible' => $action === 'enable' ? 1 : 0,
+            'visible' => $visible,
             'providermodel' => $providermodel
         ];
     }

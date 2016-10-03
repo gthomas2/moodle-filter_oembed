@@ -28,7 +28,45 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
 
             prevEditRow: null,
 
+            /**
+             * Reload provider row.
+             * @param {int} pid
+             * @param {jQuery} row
+             * @param {string|null} action
+             * @param {function|null} callback
+             */
+            reloadRow: function(pid, row, action, callback) {
+                action = !action ? 'reload' : action;
+                ajax.call([
+                    {
+                        methodname: 'filter_oembed_provider_manage',
+                        args: {
+                            pid: pid,
+                            action: action
+                        },
+                        done: function(response) {
+                            // Update row.
+                            templates.render('filter_oembed/managementpagerow', response.providermodel)
+                                .done(function(result) {
+                                    $(row).replaceWith(result);
+                                    row = $('#oembed-display-providers_'+pid);
+                                    if (typeof(callback) === 'function') {
+                                        callback(row);
+                                    }
+                                });
+                        },
+                        fail: function(response) {
+                            notification.exception(response);
+                        }
+                    }
+                ], true, true);
+            },
+
+            /**
+             * Listen for enable / disable action.
+             */
             listenEnableDisable: function() {
+                var self = this;
                 $('#oembedproviders').on('click', '.oembed-provider-actions .filter-oembed-visibility', function(e) {
                     e.preventDefault();
 
@@ -37,37 +75,31 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     var enabled = !$(row).hasClass('dimmed_text');
                     var action = enabled ? 'disable' : 'enable';
 
-                    ajax.call([
-                        {
-                            methodname: 'filter_oembed_provider_manage_visibility',
-                            args: {
-                                pid: pid,
-                                action: action
-                            },
-                            done: function(response) {
-                                // Update row.
-                                templates.render('filter_oembed/managementpagerow', response.providermodel)
-                                    .done(function(result) {
-                                        $(row).replaceWith(result);
-                                    });
-                            },
-                            fail: function(response) {
-                                notification.exception(response);
-                            }
-                        }
-                    ], true, true);
+                    self.reloadRow(pid, row, action);
                 });
             },
 
+            /**
+             * Listen for edit action.
+             */
             listenEdit: function() {
-
                 var self = this;
+
+                /**
+                 * Turn editing off for a row
+                 * @param {jQuery} row
+                 */
+                var turnEditingOff = function(row) {
+                    $(row).removeClass('oembed-provider-editing');
+                    $(row).remove('form');
+                    $(row).remove('.alert');
+                };
 
                 /**
                  * Update the provider form with data.
                  * @param string data - serialized form data.
                  */
-                var updateProviderForm = function(pid, data) {
+                var updateProviderForm = function(pid, data, callback) {
 
                     var rx = new RegExp('(?:course-)(\\S)');
                     var result = rx.exec($('body').attr('class'));
@@ -87,6 +119,9 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                                 html,
                                 js
                             );
+                            if (typeof(callback) === 'function') {
+                                callback();
+                            }
                         }
                     );
                 };
@@ -97,10 +132,10 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     var row = $(this).parents('tr')[0];
                     var pid = $(row).data('pid');
 
-                    // Remove editing class from previous row and delete form.
+                    // Remove editing class from current row / previous row and delete form.
                     if (self.prevEditRow !== null) {
-                        $(self.prevEditRow).removeClass('oembed-provider-editing');
-                        $(self.prevEditRow).remove('form');
+                        turnEditingOff(self.prevEditRow);
+                        turnEditingOff(row);
                     }
 
                     self.prevEditRow = row;
@@ -115,14 +150,23 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     var form = $(this).parents('form')[0];
                     $(form).trigger('save-form-state');
                     var data = $(form).serialize();
-                    updateProviderForm(pid, data);
+                    updateProviderForm(pid, data, function() {
+                        var successSel = '#oembed-display-providers_' + pid + ' .oembed-provider-details div.alert-success';
+                        if ($(successSel).length) {
+                            var successHTML = $(successSel)[0].outerHTML;
+                            turnEditingOff(row);
+                            self.reloadRow(pid, row, 'reload', function(){
+                                var rowcell = $('#oembed-display-providers_'+pid+' td');
+                                $(rowcell).append(successHTML);
+                            });
+                        }
+                    });
                 });
 
                 $('#oembedproviders').on('click', '.oembed-provider-details form #id_cancel', function(e) {
                     e.preventDefault();
                     var row = $(this).parents('tr')[0];
-                    $(row).removeClass('oembed-provider-editing');
-
+                    turnEditingOff(row);
                 });
             },
 
