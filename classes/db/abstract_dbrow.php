@@ -32,7 +32,7 @@ class abstract_dbrow {
      * anstract_dbrow constructor.
      * @param stdClass $row
      */
-    function __construct($row) {
+    public function __construct($row) {
 
         if (!$row) {
             throw new \coding_exception('$row does not exist');

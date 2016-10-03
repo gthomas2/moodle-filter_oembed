@@ -77,5 +77,4 @@ function filter_oembed_output_fragment_provider($args) {
     }
 
     return $form->render().$msg;
-    
 }
