@@ -30,7 +30,9 @@ use filter_oembed\forms\provider;
  * @return string
  */
 function filter_oembed_output_fragment_provider($args) {
-    global $OUTPUT, $CFG;
+    global $PAGE, $CFG;
+
+    $output = $PAGE->get_renderer('core', '', RENDERER_TARGET_GENERAL);
 
     $oembed = \filter_oembed\service\oembed::get_instance('all');
 
@@ -66,14 +68,10 @@ function filter_oembed_output_fragment_provider($args) {
     if (!empty($ajaxdata)) {
         if ($form->is_validated()) {
             $success = $oembed->update_provider_row($ajaxdata);
-            // TODO - localize.
             if ($success) {
-                // TODO - WHY IS OUTPUT FAILING TO RETURN ANYTHING FROM THE NOTIFICATION FUNCTION!!!!!??????
-                //$msg = $OUTPUT->notification('Successfully updated provider row', 'notifysuccess');
-                $msg = '<div class="alert alert-success">Successfully updated provider row !</div>';
+                $msg = $output->notification(get_string('saveok', 'filter_oembed'), 'notifysuccess');
             } else {
-                //$msg = $OUTPUT->notification('Failed to update provider row', 'notifyproblem');
-                $msg = '<div class="alert alert-danger">Failed to update provider row !</div>';
+                $msg = $output->notification(get_string('savefailed', 'filter_oembed'), 'notifyproblem');
             }
         }
     }
