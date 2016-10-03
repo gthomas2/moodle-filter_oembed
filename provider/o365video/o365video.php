@@ -112,7 +112,7 @@ class o365video extends provider {
             $odburl = preg_replace('/^https?:\/\//', '', $odburl);
             $odburl = preg_replace('/\/.*/', '', $odburl);
             $trimedurl = preg_replace("/-my/", "", $odburl);
-            $search = '/(https?:\/\/)('.$odburl.'|'.$trimedurl.')\/(.*?)/is';
+            $search = '/(https?:\/\/)('.$odburl.'|'.$trimedurl.')\/(.*)/is';
             $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
         }
         return (empty($newtext) || ($newtext == $text)) ? false : $newtext;

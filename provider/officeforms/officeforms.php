@@ -52,7 +52,7 @@ class officeforms extends provider {
      */
     public function get_replacement($matched) {
         if (!empty($matched)) {
-            $url = $matched[1].$matched[3].'/'.$matched[4].'/ResponsePage.aspx?id='.$matched[6].'&embed=true';
+            $url = 'https://forms.office.com/Pages/ResponsePage.aspx?id='.$matched[4].'&embed=true';
             $embedhtml = $this->getembedhtml($url);
             return $embedhtml;
         }
@@ -70,7 +70,7 @@ class officeforms extends provider {
      * @return string Filtered text, or false for no changes.
      */
     public function filter($text) {
-        $search = '/(https?:\/\/(www\.)?)(forms\.office\.com)\/(.+?)\/(DesignPage\.aspx)#FormId=(.+?)/is';
+        $search = '/(https?:\/\/(www\.)?)(forms\.office\.com)\/Pages\/ResponsePage.aspx\?id=(.+)/is';
         $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
         return (empty($newtext) || ($newtext == $text)) ? false : $newtext;
     }
