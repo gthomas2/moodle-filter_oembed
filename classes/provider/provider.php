@@ -147,7 +147,7 @@ class provider {
 
                     // At the moment, we're only supporting JSON, so this must be JSON.
                     $requesturl = str_replace('{format}', 'json', $endpoint->url) .
-                           '?url=' . $text . '&format=json';
+                           '?url=' . urlencode($text) . '&format=json';
                     break 2; // Done, break out of all loops.
                 }
             }

@@ -47,7 +47,7 @@ class oembed {
     protected $warnings = [];
 
     /**
-     * @var array|mixed
+     * @var provider[]
      */
     protected $providers = [];
 
@@ -138,14 +138,20 @@ class oembed {
                 $output = $completeoutput;
                 break;
             } else if ($requesturl = $provider->get_oembed_request($text)) {
+                // Get additional url params out of original url
+                $parsed = parse_url($text);
+                $query = $parsed['query'];
+                $params = [];
+                parse_str($query, $params);
+
                 // If we have a consumer request, we're done searching. Try for a response.
                 $jsonret = $provider->oembed_response($requesturl);
                 if (!$jsonret) {
                     $output = '';
                 } else if ($lazyload) {
-                    $output = $this->oembed_getpreloadhtml($jsonret);
+                    $output = $this->oembed_getpreloadhtml($jsonret, $params);
                 } else {
-                    $output = $this->oembed_gethtml($jsonret);
+                    $output = $this->oembed_gethtml($jsonret, $params);
                 }
                 break; // Done, break out of all loops.
             }
@@ -157,11 +163,11 @@ class oembed {
      * Get oembed html.
      *
      * @param array $jsonarr
-     * @param string $params
+     * @param array $params
      * @return string
      * @throws \coding_exception
      */
-    protected function oembed_gethtml($jsonarr, $params = '') {
+    protected function oembed_gethtml($jsonarr, $params = []) {
         if ($jsonarr === null) {
             $this->warnings[] = get_string('connection_error', 'filter_oembed');
             return '';
@@ -169,8 +175,15 @@ class oembed {
 
         $embed = $jsonarr['html'];
 
-        if ($params != '') {
-            $embed = str_replace('?feature=oembed', '?feature=oembed'.htmlspecialchars($params), $embed);
+        // Add original params into content url.
+        // This is necessary for youtube videos - e.g. preserving auto play, etc..
+        if (!empty($params)) {
+            $paramstr = '';
+            foreach ($params as $key => $val) {
+                $paramstr .= '&';
+                $paramstr .= $key . '=' . urlencode($val);
+            }
+            $embed = str_replace('?feature=oembed', '?feature=oembed'.$paramstr, $embed);
         }
 
         $output = '<div class="oembed-content">' . $embed . '</div>'; // Wrapper for responsive processing.
@@ -180,10 +193,10 @@ class oembed {
     /**
      * Generate preloader html.
      * @param array $jsonarr
-     * @param string $params
+     * @param array $params
      * @return string
      */
-    protected function oembed_getpreloadhtml(array $jsonarr, $params = '') {
+    protected function oembed_getpreloadhtml(array $jsonarr, $params = []) {
         global $PAGE;
         /** @var \filter_oembed\output\renderer $renderer */
         $renderer = $PAGE->get_renderer('filter_oembed');
