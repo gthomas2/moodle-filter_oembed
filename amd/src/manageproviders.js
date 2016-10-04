@@ -49,7 +49,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                             templates.render('filter_oembed/managementpagerow', response.providermodel)
                                 .done(function(result) {
                                     $(row).replaceWith(result);
-                                    row = $('#oembed-display-providers_'+pid);
+                                    row = $('#oembed-display-providers_' + pid);
                                     if (typeof(callback) === 'function') {
                                         callback(row);
                                     }
@@ -157,7 +157,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                             var successHTML = $(successSel)[0].outerHTML;
                             turnEditingOff(pid);
                             self.reloadRow(pid, row, 'reload', function(){
-                                var rowcell = $('#oembed-display-providers_'+pid+' td');
+                                var rowcell = $('#oembed-display-providers_' + pid + ' td');
                                 $(rowcell).append(successHTML);
                             });
                         }
