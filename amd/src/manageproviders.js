@@ -26,7 +26,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
     function($, notification, ajax, templates, fragment, List) {
         return {
 
-            prevEditRow: null,
+            prevEditId: null,
 
             /**
              * Reload provider row.
@@ -86,13 +86,14 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                 var self = this;
 
                 /**
-                 * Turn editing off for a row
-                 * @param {jQuery} row
+                 * Turn editing off for a row by id
+                 * @param {string} providerId
                  */
-                var turnEditingOff = function(row) {
-                    $(row).removeClass('oembed-provider-editing');
-                    $(row).remove('form');
-                    $(row).remove('.alert');
+                var turnEditingOff = function(provderId) {
+                    var sel = '#oembed-display-providers_' + provderId;
+                    $(sel).removeClass('oembed-provider-editing');
+                    $(sel + ' form').remove();
+                    $(sel + ' td div.alert').remove();
                 };
 
                 /**
@@ -133,12 +134,12 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     var pid = $(row).data('pid');
 
                     // Remove editing class from current row / previous row and delete form.
-                    if (self.prevEditRow !== null) {
-                        turnEditingOff(self.prevEditRow);
-                        turnEditingOff(row);
+                    if (self.prevEditId !== null) {
+                        turnEditingOff(self.prevEditId);
+                        turnEditingOff(pid);
                     }
 
-                    self.prevEditRow = row;
+                    self.prevEditId = pid;
 
                     updateProviderForm(pid);
                 });
@@ -154,7 +155,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                         var successSel = '#oembed-display-providers_' + pid + ' .oembed-provider-details div.alert-success';
                         if ($(successSel).length) {
                             var successHTML = $(successSel)[0].outerHTML;
-                            turnEditingOff(row);
+                            turnEditingOff(pid);
                             self.reloadRow(pid, row, 'reload', function(){
                                 var rowcell = $('#oembed-display-providers_'+pid+' td');
                                 $(rowcell).append(successHTML);
@@ -166,7 +167,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                 $('#oembedproviders').on('click', '.oembed-provider-details form #id_cancel', function(e) {
                     e.preventDefault();
                     var row = $(this).parents('tr')[0];
-                    turnEditingOff(row);
+                    turnEditingOff(row.data('pid'));
                 });
             },
 
