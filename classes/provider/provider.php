@@ -58,6 +58,11 @@ class provider {
     protected $endpoints = [];
 
     /**
+     * @var source
+     */
+    protected $source = '';
+
+    /**
      * Constructor.
      * Note - provider data is expcted to come from the moodle data (db) which excludes
      * "_" in variable names. Providers coming directly from oembed (http://oembed.com/providers.json),
@@ -87,6 +92,8 @@ class provider {
             } else {
                 throw new \coding_exception('"endpoint" data must be an array for '.get_class($this));
             }
+
+            $this->source = isset($data['source']) ? $data['source'] : '';
         }
     }
 
@@ -168,6 +175,22 @@ class provider {
     }
 
     /**
+     * Return the type of the provider source parameter (download, local, plugin).
+     *
+     * @param string $source The source value to get the type for.
+     * @return string One of 'download', 'local', 'plugin'.
+     */
+    public static function source_type($source) {
+        $sourcetype = substr($source, 0, strpos($source, '::'));
+        if (empty($sourcetype)) {
+            $sourcetype = 'local::';
+        } else {
+            $sourcetype .= '::';
+        }
+        return $sourcetype;
+    }
+
+    /**
      * Return a regular expression that can be used to search text for an endpoint's schemes.
      *
      * @param endpoint $endpoint
@@ -203,7 +226,7 @@ class provider {
      * @throws \coding_exception
      */
     public function __get($name) {
-        $allowed = ['id', 'enabled', 'providername', 'providerurl', 'endpoints'];
+        $allowed = ['id', 'enabled', 'providername', 'providerurl', 'endpoints', 'source'];
         if (in_array($name, $allowed)) {
             return $this->$name;
         } else {

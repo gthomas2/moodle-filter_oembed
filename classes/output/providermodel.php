@@ -24,6 +24,7 @@
 namespace filter_oembed\output;
 
 use filter_oembed\service\oembed;
+use filter_oembed\provider\provider;
 use filter_oembed\db\providerrow;
 
 defined('MOODLE_INTERNAL') || die();
@@ -85,6 +86,11 @@ class providermodel implements \renderable {
     public $source;
 
     /**
+     * @var string source type - local, download, plugin
+     */
+    public $sourcetype;
+
+    /**
      * @var string provider scehmes
      */
     public $schemes;
@@ -113,6 +119,8 @@ class providermodel implements \renderable {
         $this->pid = $provider->id;
         $this->providername = $provider->providername;
         $this->providerurl = $provider->providerurl;
+        $this->source = $provider->source;
+        $this->sourcetype = provider::source_type($provider->source);
         if ($provider->enabled) {
 
             // Disable action.

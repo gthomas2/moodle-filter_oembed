@@ -97,3 +97,6 @@ tr.oembed-provider-editing .oembed-provider-actions {
     margin-top: 1em;
 }
 
+.oembed-providersource {
+    font-size: 90%;
+}

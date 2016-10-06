@@ -110,7 +110,7 @@ class oembed {
         global $CFG;
 
         $pluginprefix = 'plugin::';
-        if (strpos($provider->source, $pluginprefix) === 0) {
+        if (provider::source_type($provider->source) == $pluginprefix) {
             $name = substr($provider->source, strlen($pluginprefix));
             require_once($CFG->dirroot.'/filter/oembed/provider/'.$name.'/'.$name.'.php');
             $classname = "\\filter_oembed\\provider\\{$name}";
@@ -140,7 +140,7 @@ class oembed {
             } else if ($requesturl = $provider->get_oembed_request($text)) {
                 // Get additional url params out of original url
                 $parsed = parse_url($text);
-                $query = $parsed['query'];
+                $query = isset($parsed['query']) ? $parsed['query'] : '';
                 $params = [];
                 parse_str($query, $params);
 
@@ -490,7 +490,7 @@ class oembed {
 
         // Any current plugin providers left must have been deleted if they have the same source.
         foreach ($currentproviders as $providerdata) {
-            if (strpos($providerdata->source, $source) === 0) {
+            if (provider::source_type($providerdata->source) == $source) {
                 // Perform delete provider actions.
                 mtrace('      deleting '.$providerdata->providername);
                 $DB->delete_records('filter_oembed', ['id' => $providerdata->id]);

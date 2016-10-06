@@ -41,7 +41,8 @@ class provider extends moodleform {
             'providername' => ['required' => true, 'type' => 'text', 'paramtype' => PARAM_TEXT],
             'providerurl'  => ['required' => true, 'type' => 'text', 'paramtype' => PARAM_URL],
             'endpoints'    => ['required' => true, 'type' => 'textarea', 'paramtype' => PARAM_TEXT],
-            'enabled'      => ['required' => false, 'type' => 'checkbox', 'paramtype' => PARAM_INT]
+            'enabled'      => ['required' => false, 'type' => 'checkbox', 'paramtype' => PARAM_INT],
+            'source'       => ['required' => false, 'type' => 'static', 'paramtype' => PARAM_TEXT],
         ];
 
         // Define form according to configuration.
