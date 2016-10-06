@@ -38,7 +38,7 @@ function filter_oembed_output_fragment_provider($args) {
 
     $data = null;
     $ajaxdata = null;
-    if ($args['formdata']) {
+    if (isset($args['formdata'])) {
         $data = [];
         parse_str($args['formdata'], $data);
         if ($data) {
@@ -60,18 +60,33 @@ function filter_oembed_output_fragment_provider($args) {
         $ajaxdata['enabled'] = 0;
     }
     $actionurl = $CFG->wwwroot.'/filter/oembed/manageproviders.php';
-    $form = new provider($actionurl, null, 'post', '', null, true, $ajaxdata);
+    // Pass the source type as custom data so it can by used to detetmine the type of edit.
+    $form = new provider($actionurl, \filter_oembed\provider\provider::source_type($data['source']),
+        'post', '', null, true, $ajaxdata);
     $form->validate_defined_fields(true);
+    $data['sourcetext'] = $data['source'];
     $form->set_data($data);
 
     $msg = '';
     if (!empty($ajaxdata)) {
         if ($form->is_validated()) {
-            $success = $oembed->update_provider_row($ajaxdata);
-            if ($success) {
-                $msg = $output->notification(get_string('saveok', 'filter_oembed'), 'notifysuccess');
+            // If editing a downloaded provider, create a new local one and disable the download one.
+            if (\filter_oembed\provider\provider::source_type($ajaxdata['source']) == 'download::') {
+                $success = $oembed->copy_provider_to_local($ajaxdata);
+                if ($success) {
+                    $msg = $output->notification(get_string('copytolocal', 'filter_oembed', $ajaxdata['providername']),
+                        'notifysuccess');
+                } else {
+                    $msg = $output->notification(get_string('nocopytolocal', 'filter_oembed', $ajaxdata['providername']),
+                        'notifyproblem');
+                }
             } else {
-                $msg = $output->notification(get_string('savefailed', 'filter_oembed'), 'notifyproblem');
+                $success = $oembed->update_provider_row($ajaxdata);
+                if ($success) {
+                    $msg = $output->notification(get_string('saveok', 'filter_oembed'), 'notifysuccess');
+                } else {
+                    $msg = $output->notification(get_string('savefailed', 'filter_oembed'), 'notifyproblem');
+                }
             }
         }
     }

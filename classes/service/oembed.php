@@ -584,6 +584,24 @@ class oembed {
     }
 
     /**
+     * Copy downloaded provider row to new local row (or update).
+     * @param array|object $providerdata
+     * @return bool
+     */
+    public function copy_provider_to_local($providerdata) {
+        global $DB;
+        if (provider::source_type($providerdata['source']) != 'download::') {
+            return false;
+        }
+        $newsource = 'local::' . strtolower(str_replace(' ', '', $providerdata['providername']));
+        if ($DB->record_exists('filter_oembed', ['source' => $newsource])) {
+            return false;
+        }
+        $providerdata['source'] = $newsource;
+        return $DB->insert_record('filter_oembed', $providerdata, false);
+    }
+
+    /**
      * Set the provider enabled field to the specified value.
      *
      * @param int | object $provider The provider to modify.

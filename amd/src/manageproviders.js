@@ -127,9 +127,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     );
                 };
 
-                /**
-                 * Listen for click cancel.
-                 */
+                 // Listen for click cancel.
                 $('#oembedproviders').on('click', '.oembed-provider-actions .filter-oembed-edit', function(e) {
                     e.preventDefault();
 
@@ -147,9 +145,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     updateProviderForm(pid);
                 });
 
-                /**
-                 * Listen for form click submit.
-                 */
+                 // Listen for form click submit.
                 $('#oembedproviders').on('click', '.oembed-provider-details form #id_submitbutton', function(e) {
                     e.preventDefault();
                     var row = $(this).parents('tr')[0];
@@ -170,9 +166,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     });
                 });
 
-                /**
-                 * Listen for form click cancel.
-                 */
+                 // Listen for form click cancel.
                 $('#oembedproviders').on('click', '.oembed-provider-details form #id_cancel', function(e) {
                     e.preventDefault();
                     var row = $(this).parents('tr')[0];

@@ -42,20 +42,31 @@ class provider extends moodleform {
             'providerurl'  => ['required' => true, 'type' => 'text', 'paramtype' => PARAM_URL],
             'endpoints'    => ['required' => true, 'type' => 'textarea', 'paramtype' => PARAM_TEXT],
             'enabled'      => ['required' => false, 'type' => 'checkbox', 'paramtype' => PARAM_INT],
-            'source'       => ['required' => false, 'type' => 'static', 'paramtype' => PARAM_TEXT],
         ];
 
         // Define form according to configuration.
         foreach ($config as $fieldname => $row) {
             $row = (object) $row;
-            $fieldlabel = get_string($fieldname, 'filter_oembed');
+            if ($row->type == 'hidden') {
+                $fieldlabel = '';
+            } else {
+                $fieldlabel = get_string($fieldname, 'filter_oembed');
+            }
             $mform->addElement($row->type, $fieldname, $fieldlabel);
             $mform->setType($fieldname, $row->paramtype);
             if ($row->required) {
                 $mform->addRule($fieldname, get_string('requiredfield', 'filter_oembed', $fieldlabel), 'required');
             }
         }
+        $mform->addElement('hidden', 'source');
+        $mform->setType('source', PARAM_TEXT);
+        $mform->addElement('static', 'sourcetext', get_string('source', 'filter_oembed'));
 
-        $this->add_action_buttons();
+        if ($this->_customdata == 'download::') {
+            $label = get_string('saveasnew', 'filter_oembed');
+        } else {
+            $label = null;
+        }
+        $this->add_action_buttons(true, $label);
     }
 }
