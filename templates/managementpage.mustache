@@ -58,9 +58,30 @@ Displayed if x was true.
             </tr>
           </thead>
           <tbody class="list">
-          {{#rows}}
+            <tr id="oembed-local-providers-head-row" class="oembed-local-providers">
+                <th id="oembed-local-providers-head">
+                  {{#str}}localproviders, filter_oembed{{/str}}
+                </th>
+            </tr>
+          {{#localrows}}
               {{> filter_oembed/managementpagerow}}
-          {{/rows}}
+          {{/localrows}}
+            <tr id="oembed-plugin-providers-head-row" class="oembed-plugin-providers">
+                <th id="oembed-plugin-providers-head">
+                  {{#str}}pluginproviders, filter_oembed{{/str}}
+                </th>
+            </tr>
+          {{#pluginrows}}
+              {{> filter_oembed/managementpagerow}}
+          {{/pluginrows}}
+            <tr id="oembed-download-providers-head-row" class="oembed-download-providers">
+                <th id="oembed-download-providers-head">
+                  {{#str}}downloadproviders, filter_oembed{{/str}}
+                </th>
+            </tr>
+          {{#downloadrows}}
+              {{> filter_oembed/managementpagerow}}
+          {{/downloadrows}}
           </tbody>
     </table>
 </div>

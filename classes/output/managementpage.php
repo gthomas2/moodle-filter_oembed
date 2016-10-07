@@ -24,6 +24,7 @@
 namespace filter_oembed\output;
 
 use filter_oembed\db\providerrow;
+use filter_oembed\provider\provider;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -54,15 +55,32 @@ class managementpage implements \renderable, \templatable {
      */
     public function export_for_template(\renderer_base $output) {
         $data = [
-            'rows' => []
+            'localrows' => [],
+            'downloadrows' => [],
+            'pluginrows' => [],
         ];
 
         if (count($this->rows) < 1) {
             return $data;
         }
 
+        // Separate out the rows by source for display.
         foreach ($this->rows as $row) {
-            $data['rows'][] = new providermodel($row);
+            $sourcetype = provider::source_type($row->source);
+            switch ($sourcetype) {
+                case 'download::':
+                    $data['downloadrows'][] = new providermodel($row);
+                    break;
+
+                case 'plugin::':
+                    $data['pluginrows'][] = new providermodel($row);
+                    break;
+
+                case 'local':
+                default:
+                    $data['localrows'][] = new providermodel($row);
+                    break;
+            }
         }
         return $data;
     }
