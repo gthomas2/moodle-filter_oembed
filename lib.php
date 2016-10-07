@@ -38,7 +38,7 @@ function filter_oembed_output_fragment_provider($args) {
 
     $data = null;
     $ajaxdata = null;
-    if (isset($args['formdata'])) {
+    if (!empty($args['formdata'])) {
         $data = [];
         parse_str($args['formdata'], $data);
         if ($data) {
