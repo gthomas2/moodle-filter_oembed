@@ -62,11 +62,18 @@ class provider extends moodleform {
         $mform->setType('source', PARAM_TEXT);
         $mform->addElement('static', 'sourcetext', get_string('source', 'filter_oembed'));
 
-        if ($this->_customdata == 'download::') {
-            $label = get_string('saveasnew', 'filter_oembed');
+        if ($this->_customdata == 'plugin::') {
+            // Plugins can't be edited.
+            $mform->addElement('cancel');
         } else {
-            $label = null;
+            if ($this->_customdata == 'download::') {
+                // Downloads can be saved as new locals.
+                $label = get_string('saveasnew', 'filter_oembed');
+            } else {
+                // Locals can be edited.
+                $label = null;
+            }
+            $this->add_action_buttons(true, $label);
         }
-        $this->add_action_buttons(true, $label);
     }
 }
