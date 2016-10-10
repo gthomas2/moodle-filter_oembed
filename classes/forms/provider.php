@@ -44,6 +44,12 @@ class provider extends moodleform {
             'enabled'      => ['required' => false, 'type' => 'checkbox', 'paramtype' => PARAM_INT],
         ];
 
+        // Common attributes to be appleid to all fields.
+        $commonattributes = null;
+        if ($this->_customdata === 'plugin::') {
+            $commonattributes = 'disabled="disabled"';
+        }
+
         // Define form according to configuration.
         foreach ($config as $fieldname => $row) {
             $row = (object) $row;
@@ -52,7 +58,10 @@ class provider extends moodleform {
             } else {
                 $fieldlabel = get_string($fieldname, 'filter_oembed');
             }
-            $mform->addElement($row->type, $fieldname, $fieldlabel);
+            $el = $mform->addElement($row->type, $fieldname, $fieldlabel);
+            if (!empty($commonattributes)) {
+                $el->updateAttributes($commonattributes);
+            }
             $mform->setType($fieldname, $row->paramtype);
             if ($row->required) {
                 $mform->addRule($fieldname, get_string('requiredfield', 'filter_oembed', $fieldlabel), 'required');
@@ -62,7 +71,7 @@ class provider extends moodleform {
         $mform->setType('source', PARAM_TEXT);
         $mform->addElement('static', 'sourcetext', get_string('source', 'filter_oembed'));
 
-        if ($this->_customdata == 'plugin::') {
+        if ($this->_customdata === 'plugin::') {
             // Plugins can't be edited.
             $mform->addElement('cancel');
         } else {
