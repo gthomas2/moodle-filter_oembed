@@ -149,7 +149,7 @@ class behat_filter_oembed extends behat_base {
 
             $formhelper->i_set_the_field_with_xpath_to($fieldxpath, $value);
 
-            $this->find_button(get_string('savechanges'))->press();
+            $this->find_button(get_string('saveasnew', 'filter_oembed'))->press();
         }
 
     }
