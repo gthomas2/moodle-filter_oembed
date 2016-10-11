@@ -43,7 +43,7 @@ class behat_filter_oembed extends behat_base {
      * Click on a provider action.
      *
      * @Given /^I "(?P<action_string>(?:[^"]|\\")*)" "(?P<provider_string>[^"]*)" provider$/
-     * 
+     *
      * @param string $action
      * @param string $provider
      * @return void
@@ -123,7 +123,7 @@ class behat_filter_oembed extends behat_base {
     protected function wait_for_edit_form($provider) {
         $xpath = $this->edit_form_xpath($provider);
         $this->ensure_element_is_visible($xpath, 'xpath_element');
-}
+    }
 
     /**
      * @Given /^I edit the provider "(?P<provider_string>[^"]*)" with the values:$/

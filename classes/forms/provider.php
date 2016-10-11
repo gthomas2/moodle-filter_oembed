@@ -44,6 +44,8 @@ class provider extends moodleform {
             'enabled'      => ['required' => false, 'type' => 'checkbox', 'paramtype' => PARAM_INT],
         ];
 
+        $sourcetype = $this->_customdata;
+
         // Define form according to configuration.
         foreach ($config as $fieldname => $row) {
             $row = (object) $row;
@@ -52,10 +54,13 @@ class provider extends moodleform {
             } else {
                 $fieldlabel = get_string($fieldname, 'filter_oembed');
             }
-            $mform->addElement($row->type, $fieldname, $fieldlabel);
+            $elem = $mform->addElement($row->type, $fieldname, $fieldlabel);
             $mform->setType($fieldname, $row->paramtype);
             if ($row->required) {
                 $mform->addRule($fieldname, get_string('requiredfield', 'filter_oembed', $fieldlabel), 'required');
+            }
+            if ($sourcetype == 'plugin::') {
+                $elem->freeze();
             }
         }
         $mform->addElement('hidden', 'source');
