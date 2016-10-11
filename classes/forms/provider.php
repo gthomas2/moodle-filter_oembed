@@ -45,6 +45,7 @@ class provider extends moodleform {
             'source'       => ['required' => true, 'type' => 'hidden', 'paramtype' => PARAM_TEXT],
         ];
 
+        // The source type is stored in "_customdata".
         $sourcetype = $this->_customdata;
         // Common attributes to be appleid to all fields.
         $commonattributes = null;
@@ -76,7 +77,7 @@ class provider extends moodleform {
             // Plugins can't be edited.
             $mform->addElement('cancel');
         } else {
-            if ($this->_customdata == 'download::') {
+            if ($sourcetype == 'download::') {
                 // Downloads can be saved as new locals.
                 $label = get_string('saveasnew', 'filter_oembed');
             } else {

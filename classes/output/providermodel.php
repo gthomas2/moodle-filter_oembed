@@ -146,11 +146,15 @@ class providermodel implements \renderable {
             new \pix_icon('t/edit', get_string('edit')), null, ['class' => 'action-icon filter-oembed-edit']);
 
         // Delete action.
-        $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' .
-            $provider->id . '&sesskey=' . sesskey();
-        $this->deleteaction = $output->action_icon($action,
-            new \pix_icon('t/delete', get_string('delete')),
-            new \confirm_action(get_string('deleteproviderconfirm', 'filter_oembed')));
+        if ($this->sourcetype == 'local::') {
+            $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' .
+                $provider->id . '&sesskey=' . sesskey();
+            $this->deleteaction = $output->action_icon($action,
+                new \pix_icon('t/delete', get_string('delete')),
+                new \confirm_action(get_string('deleteproviderconfirm', 'filter_oembed')));
+        } else {
+            $this->deleteaction = '';
+        }
 
     }
 }
