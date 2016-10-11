@@ -31,6 +31,14 @@ $functions = [
         'type'          => 'write',
         'ajax'          => true,
         'loginrequired' => true
+    ],
+    'filter_oembed_providers' => [
+        'classname'     => 'filter_oembed\\webservice\\ws_providers',
+        'methodname'    => 'service',
+        'description'   => 'Array of providers',
+        'type'          => 'read',
+        'ajax'          => true,
+        'loginrequired' => true
     ]
 ];
 

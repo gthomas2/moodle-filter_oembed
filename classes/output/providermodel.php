@@ -110,7 +110,7 @@ class providermodel implements \renderable {
      * @param mixed $provider
      */
     public function __construct($provider) {
-        global $PAGE, $CFG, $DB;
+        global $PAGE, $CFG;
         $PAGE->set_context(\context_system::instance());
         $output = $PAGE->get_renderer('filter_oembed', null, RENDERER_TARGET_GENERAL);
 
@@ -152,18 +152,5 @@ class providermodel implements \renderable {
             new \pix_icon('t/delete', get_string('delete')),
             new \confirm_action(get_string('deleteproviderconfirm', 'filter_oembed')));
 
-        // If edit requested, provide full provider data to the template.
-        /* if (!empty($provider->editing)) {
-            $this->editing = 1;
-            $this->source = $provider->source;
-            $optionalprops = ['schemes', 'url', 'discovery', 'formats'];
-            foreach ($optionalprops as $prop) {
-                if (isset($provider->$prop)) {
-                    $this->$prop = $provider->$prop;
-                }
-            }
-        } else {
-            $this->editing = 0;
-        } */
     }
 }

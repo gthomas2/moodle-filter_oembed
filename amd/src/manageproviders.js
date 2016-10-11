@@ -63,6 +63,30 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
             },
 
             /**
+             * Reload all providers.
+             */
+            reloadProviders: function() {
+                ajax.call([
+                    {
+                        methodname: 'filter_oembed_providers',
+                        args: {
+                            scope: 'all'
+                        },
+                        done: function(response) {
+                            // Update table.
+                            templates.render('filter_oembed/managementpage', response)
+                                .done(function(result) {
+                                    $('#providermanagement').replaceWith(result);
+                                });
+                        },
+                        fail: function(response) {
+                            notification.exception(response);
+                        }
+                    }
+                ], true, true);
+            },
+
+            /**
              * Listen for enable / disable action.
              */
             listenEnableDisable: function() {
@@ -151,6 +175,8 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     var row = $(this).parents('tr')[0];
                     var pid = $(row).data('pid');
                     var form = $(this).parents('form')[0];
+                    var source = $(form).find('input[name="source"]').val();
+
                     $(form).trigger('save-form-state');
                     var data = $(form).serialize();
                     updateProviderForm(pid, data, function() {
@@ -158,10 +184,17 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                         if ($(successSel).length) {
                             var successHTML = $(successSel)[0].outerHTML;
                             turnEditingOff(pid);
-                            self.reloadRow(pid, row, 'reload', function(){
-                                var rowcell = $('#oembed-display-providers_' + pid + ' td');
-                                $(rowcell).append(successHTML);
-                            });
+
+                            if (source.indexOf('download::') > -1) {
+                                // When a downloaded provider is saved, a new one is created as a local provider, so we
+                                // need to reload the full list.
+                                self.reloadProviders();
+                            } else {
+                                self.reloadRow(pid, row, 'reload', function() {
+                                    var rowcell = $('#oembed-display-providers_' + pid + ' td');
+                                    $(rowcell).append(successHTML);
+                                });
+                            }
                         }
                     });
                 });

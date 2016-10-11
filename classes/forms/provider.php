@@ -42,6 +42,7 @@ class provider extends moodleform {
             'providerurl'  => ['required' => true, 'type' => 'text', 'paramtype' => PARAM_URL],
             'endpoints'    => ['required' => true, 'type' => 'textarea', 'paramtype' => PARAM_TEXT],
             'enabled'      => ['required' => false, 'type' => 'checkbox', 'paramtype' => PARAM_INT],
+            'source'       => ['required' => true, 'type' => 'hidden', 'paramtype' => PARAM_TEXT],
         ];
 
         $sourcetype = $this->_customdata;
@@ -68,8 +69,7 @@ class provider extends moodleform {
                 $mform->addRule($fieldname, get_string('requiredfield', 'filter_oembed', $fieldlabel), 'required');
             }
         }
-        $mform->addElement('hidden', 'source');
-        $mform->setType('source', PARAM_TEXT);
+
         $mform->addElement('static', 'sourcetext', get_string('source', 'filter_oembed'));
 
         if ($sourcetype === 'plugin::') {
