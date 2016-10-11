@@ -45,6 +45,11 @@ class provider extends moodleform {
         ];
 
         $sourcetype = $this->_customdata;
+        // Common attributes to be appleid to all fields.
+        $commonattributes = null;
+        if ($sourcetype === 'plugin::') {
+            $commonattributes = 'disabled="disabled"';
+        }
 
         // Define form according to configuration.
         foreach ($config as $fieldname => $row) {
@@ -54,20 +59,20 @@ class provider extends moodleform {
             } else {
                 $fieldlabel = get_string($fieldname, 'filter_oembed');
             }
-            $elem = $mform->addElement($row->type, $fieldname, $fieldlabel);
+            $el = $mform->addElement($row->type, $fieldname, $fieldlabel);
+            if (!empty($commonattributes)) {
+                $el->updateAttributes($commonattributes);
+            }
             $mform->setType($fieldname, $row->paramtype);
             if ($row->required) {
                 $mform->addRule($fieldname, get_string('requiredfield', 'filter_oembed', $fieldlabel), 'required');
-            }
-            if ($sourcetype == 'plugin::') {
-                $elem->freeze();
             }
         }
         $mform->addElement('hidden', 'source');
         $mform->setType('source', PARAM_TEXT);
         $mform->addElement('static', 'sourcetext', get_string('source', 'filter_oembed'));
 
-        if ($this->_customdata == 'plugin::') {
+        if ($sourcetype === 'plugin::') {
             // Plugins can't be edited.
             $mform->addElement('cancel');
         } else {
