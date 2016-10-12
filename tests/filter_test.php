@@ -70,7 +70,7 @@ class filter_oembed_testcase extends advanced_testcase {
 
         $filteroutput = $this->filter->filter($filterinput);
 
-        $youtubeoutput = '/.*<iframe .*src="https:\/\/www\.youtube\.com\/embed\/ns6gCZI-Nj8\?feature=oembed".*/';
+        $youtubeoutput = '/.*<iframe .*src="https:\/\/www\.youtube\.com\/embed\/ns6gCZI-Nj8\?feature=oembed.*"/';
         $this->assertRegExp($youtubeoutput, $filteroutput, 'Youtube filter fails');
 
         $soundcloudoutput = '/.*<iframe .*src="https:\/\/w\.soundcloud\.com\/player\/'.

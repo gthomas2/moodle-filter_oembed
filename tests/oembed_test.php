@@ -98,7 +98,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
         $oembed = testable_oembed::get_instance();
         $text = $oembed->html_output('https://www.youtube.com/watch?v=Dsws8T9_cEE');
         $expectedtext = '<div class="oembed-content"><iframe width="480" height="270"' .
-            ' src="https://www.youtube.com/embed/Dsws8T9_cEE?feature=oembed"' .
+            ' src="https://www.youtube.com/embed/Dsws8T9_cEE?feature=oembed&v=Dsws8T9_cEE"' .
             ' frameborder="0" allowfullscreen></iframe></div>';
         $this->assertEquals($expectedtext, $text);
     }
