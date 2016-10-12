@@ -564,6 +564,31 @@ class oembed {
     }
 
     /**
+     * Delete the local provider.
+     *
+     * @param int | provider The provider to delete.
+     */
+    public function delete_provider($provider) {
+        global $DB;
+
+        if (is_object($provider)) {
+            $lookup = ['providername' => $provider->providername];
+            $pid = $DB->get_field('filter_oembed', 'id', $lookup);
+        } else if (is_int($provider) || is_numeric($provider)) {
+            $lookup = ['id' => $provider];
+            $pid = $provider;
+        } else {
+            throw new \coding_exception('oembed::enable_provider requires either a provider object or a data id integer.');
+        }
+
+        // Only delete local providers this way.
+        if (provider::source_type($this->providers[$pid]->source) == 'local::') {
+            $DB->delete_records('filter_oembed', ['id' => $pid]);
+            unset($this->providers[$pid]);
+        }
+    }
+
+    /**
      * Get provider row from db.
      * @param int $providerid The provider id for which we want to retrieve.
      * @return providerrow

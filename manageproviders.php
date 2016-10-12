@@ -52,6 +52,10 @@ switch ($action) {
     case 'enable':
         $oembed->enable_provider($pid);
         break;
+
+    case 'delete':
+        $oembed->delete_provider($pid);
+        break;
 }
 
 $PAGE->set_context($systemcontext);
