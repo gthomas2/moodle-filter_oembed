@@ -581,6 +581,11 @@ class oembed {
             throw new \coding_exception('oembed::enable_provider requires either a provider object or a data id integer.');
         }
 
+        if (!isset($this->providers[$pid])) {
+            // Already deleted?
+            return;
+        }
+
         // Only delete local providers this way.
         if (provider::source_type($this->providers[$pid]->source) == 'local::') {
             $DB->delete_records('filter_oembed', ['id' => $pid]);

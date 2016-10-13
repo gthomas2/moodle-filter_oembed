@@ -76,7 +76,8 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                             // Update table.
                             templates.render('filter_oembed/managementpage', response)
                                 .done(function(result) {
-                                    $('#providermanagement').replaceWith(result);
+                                    var resultHtml = $($.parseHTML(result)).html();
+                                    $('#providermanagement').html(resultHtml);
                                 });
                         },
                         fail: function(response) {
@@ -91,7 +92,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
              */
             listenEnableDisable: function() {
                 var self = this;
-                $('#oembedproviders').on('click', '.oembed-provider-actions .filter-oembed-visibility', function(e) {
+                $('#providermanagement').on('click', '.oembed-provider-actions .filter-oembed-visibility', function(e) {
                     e.preventDefault();
 
                     var row = $(this).parents('tr')[0];
@@ -152,7 +153,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                 };
 
                  // Listen for click cancel.
-                $('#oembedproviders').on('click', '.oembed-provider-actions .filter-oembed-edit', function(e) {
+                $('#providermanagement').on('click', '.oembed-provider-actions .filter-oembed-edit', function(e) {
                     e.preventDefault();
 
                     var row = $(this).parents('tr')[0];
@@ -170,7 +171,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                 });
 
                  // Listen for form click submit.
-                $('#oembedproviders').on('click', '.oembed-provider-details form #id_submitbutton', function(e) {
+                $('#providermanagement').on('click', '.oembed-provider-details form #id_submitbutton', function(e) {
                     e.preventDefault();
                     var row = $(this).parents('tr')[0];
                     var pid = $(row).data('pid');
@@ -200,7 +201,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                 });
 
                  // Listen for form click cancel.
-                $('#oembedproviders').on('click', '.oembed-provider-details form #id_cancel', function(e) {
+                $('#providermanagement').on('click', '.oembed-provider-details form #id_cancel', function(e) {
                     e.preventDefault();
                     var row = $(this).parents('tr')[0];
                     turnEditingOff($(row).data('pid'));
