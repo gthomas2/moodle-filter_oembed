@@ -68,15 +68,15 @@ class managementpage implements \renderable, \templatable {
         foreach ($this->rows as $row) {
             $sourcetype = provider::source_type($row->source);
             switch ($sourcetype) {
-                case 'download::':
+                case provider::PROVIDER_SOURCE_DOWNLOAD:
                     $data['downloadrows'][] = new providermodel($row);
                     break;
 
-                case 'plugin::':
+                case provider::PROVIDER_SOURCE_PLUGIN:
                     $data['pluginrows'][] = new providermodel($row);
                     break;
 
-                case 'local':
+                case provider::PROVIDER_SOURCE_LOCAL:
                 default:
                     $data['localrows'][] = new providermodel($row);
                     break;

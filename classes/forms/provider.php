@@ -49,7 +49,7 @@ class provider extends moodleform {
         $sourcetype = $this->_customdata;
         // Common attributes to be appleid to all fields.
         $commonattributes = null;
-        if ($sourcetype === 'plugin::') {
+        if ($sourcetype === \filter_oembed\provider\provider::PROVIDER_SOURCE_PLUGIN) {
             $commonattributes = 'disabled="disabled"';
         }
 
@@ -73,11 +73,11 @@ class provider extends moodleform {
 
         $mform->addElement('static', 'sourcetext', get_string('source', 'filter_oembed'));
 
-        if ($sourcetype === 'plugin::') {
+        if ($sourcetype === \filter_oembed\provider\provider::PROVIDER_SOURCE_PLUGIN) {
             // Plugins can't be edited.
             $mform->addElement('cancel');
         } else {
-            if ($sourcetype == 'download::') {
+            if ($sourcetype == \filter_oembed\provider\provider::PROVIDER_SOURCE_DOWNLOAD) {
                 // Downloads can be saved as new locals.
                 $label = get_string('saveasnew', 'filter_oembed');
             } else {

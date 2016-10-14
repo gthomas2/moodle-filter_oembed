@@ -109,7 +109,7 @@ class oembed {
     protected function get_provider_instance($provider) {
         global $CFG;
 
-        $pluginprefix = 'plugin::';
+        $pluginprefix = provider::PROVIDER_SOURCE_PLUGIN;
         if (provider::source_type($provider->source) == $pluginprefix) {
             $name = substr($provider->source, strlen($pluginprefix));
             require_once($CFG->dirroot.'/filter/oembed/provider/'.$name.'/'.$name.'.php');
@@ -255,7 +255,7 @@ class oembed {
             // Update all existing provider data.
             try {
                 $providers = self::download_providers();
-                $source = 'download::http://oembed.com/providers.json';
+                $source = provider::PROVIDER_SOURCE_DOWNLOAD . 'http://oembed.com/providers.json';
             } catch (Exception $e) {
                 $warnings[] = $e->getMessage();
                 $providers = [];
@@ -351,7 +351,7 @@ class oembed {
         $warnings = [];
         try {
             $providers = self::download_providers();
-            $source = 'download::http://oembed.com/providers.json';
+            $source = provider::PROVIDER_SOURCE_DOWNLOAD . 'http://oembed.com/providers.json';
         } catch (Exception $e) {
             $warnings[] = $e->getMessage();
             // If no providers were retrieved, get the local, static ones.
@@ -359,7 +359,7 @@ class oembed {
             if (empty($providers)) {
                 throw new \moodle_exception('No initial provider data available. Oembed filter will not function properly.');
             }
-            $source = 'local::'.$CFG->dirroot.'/filter/oembed/provider/providers.json';
+            $source = provider::PROVIDER_SOURCE_LOCAL . $CFG->dirroot.'/filter/oembed/provider/providers.json';
         }
 
         // Load each downloaded provider into the database.
@@ -367,7 +367,7 @@ class oembed {
 
         // Next, add the plugin providers that exist.
         $providers = self::get_plugin_providers();
-        $source = 'plugin::';
+        $source = provider::PROVIDER_SOURCE_PLUGIN;
         foreach ($providers as $provider) {
             $record = new \stdClass();
             $record->providername = $provider['provider_name'];
@@ -394,7 +394,7 @@ class oembed {
         global $DB;
 
         if ($source === null) {
-            $source = 'download::http://oembed.com/providers.json';
+            $source = provider::PROVIDER_SOURCE_DOWNLOAD . 'http://oembed.com/providers.json';
         }
 
         // Get current providers as array indexed by id.
@@ -461,7 +461,7 @@ class oembed {
     private static function update_plugin_providers(array $providers) {
         global $DB;
 
-        $source = 'plugin::';
+        $source = provider::PROVIDER_SOURCE_PLUGIN;
 
         // Get current providers as array.
         $currentproviders = self::get_all_provider_data();
@@ -586,7 +586,7 @@ class oembed {
         }
 
         // Only delete local providers this way.
-        if (provider::source_type($this->providers[$pid]->source) == 'local::') {
+        if (provider::source_type($this->providers[$pid]->source) == provider::PROVIDER_SOURCE_LOCAL) {
             $DB->delete_records('filter_oembed', ['id' => $pid]);
             unset($this->providers[$pid]);
         }
@@ -619,10 +619,10 @@ class oembed {
      */
     public function copy_provider_to_local($providerdata) {
         global $DB;
-        if (provider::source_type($providerdata['source']) != 'download::') {
+        if (provider::source_type($providerdata['source']) != provider::PROVIDER_SOURCE_DOWNLOAD) {
             return false;
         }
-        $newsource = 'local::' . strtolower(str_replace(' ', '', $providerdata['providername']));
+        $newsource = provider::PROVIDER_SOURCE_LOCAL . strtolower(str_replace(' ', '', $providerdata['providername']));
         if ($DB->record_exists('filter_oembed', ['source' => $newsource])) {
             return false;
         }

@@ -154,9 +154,6 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                             }
                         );
                     });
-
-
-
                 });
             },
 

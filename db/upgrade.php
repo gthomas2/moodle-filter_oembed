@@ -26,6 +26,7 @@
  */
 
 use filter_oembed\service\oembed;
+use filter_oembed\provider\provider;
 
 /**
  * Upgrades the OEmbed filter.
@@ -111,9 +112,9 @@ function xmldb_filter_oembed_upgrade($oldversion) {
                 $provider->endpoints = json_encode($endpoints);
                 if (($oldprovider == 'provider_powerbi_enabled') || ($oldprovider == 'provider_officeforms_enabled') ||
                     ($oldprovider == 'o365video')) {
-                    $provider->source = 'plugin::'.$oldprovider;
+                    $provider->source = provider::PROVIDER_SOURCE_PLUGIN . $oldprovider;
                 } else {
-                    $provider->source = 'local::oldoembed';
+                    $provider->source = provider::PROVIDER_SOURCE_LOCAL . 'oldoembed';
                 }
                 $provider->timecreated = time();
             }

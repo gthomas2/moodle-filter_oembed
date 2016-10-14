@@ -147,7 +147,7 @@ class providermodel implements \renderable {
             new \pix_icon('t/edit', get_string('edit')), null, ['class' => 'action-icon filter-oembed-edit']);
 
         // Delete action.
-        if ($this->sourcetype == 'local::') {
+        if ($this->sourcetype == provider::PROVIDER_SOURCE_LOCAL) {
             $action = $CFG->wwwroot . '/filter/oembed/manageproviders.php?action=delete&pid=' .
                 $provider->id . '&sesskey=' . sesskey();
             $this->deleteaction = $output->action_icon($action,

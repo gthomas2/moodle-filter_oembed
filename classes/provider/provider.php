@@ -63,6 +63,13 @@ class provider {
     protected $source = '';
 
     /**
+     * @var Class constant descriptions.
+     */
+    const PROVIDER_SOURCE_LOCAL = 'local::';
+    const PROVIDER_SOURCE_DOWNLOAD = 'download::';
+    const PROVIDER_SOURCE_PLUGIN = 'plugin::';
+
+    /**
      * Constructor.
      * Note - provider data is expcted to come from the moodle data (db) which excludes
      * "_" in variable names. Providers coming directly from oembed (http://oembed.com/providers.json),
@@ -178,12 +185,12 @@ class provider {
      * Return the type of the provider source parameter (download, local, plugin).
      *
      * @param string $source The source value to get the type for.
-     * @return string One of 'download', 'local', 'plugin'.
+     * @return string One of 'download::', 'local::', 'plugin::'.
      */
     public static function source_type($source) {
         $sourcetype = substr($source, 0, strpos($source, '::'));
         if (empty($sourcetype)) {
-            $sourcetype = 'local::';
+            $sourcetype = self::PROVIDER_SOURCE_LOCAL;
         } else {
             $sourcetype .= '::';
         }
