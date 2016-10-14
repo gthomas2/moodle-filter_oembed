@@ -65,6 +65,13 @@ $PAGE->set_pagelayout('standard');
 $strmanage = get_string('manageproviders', 'filter_oembed');
 $PAGE->set_title($strmanage);
 $PAGE->set_heading($strmanage);
+$PAGE->requires->strings_for_js(
+    [
+        'deleteprovidertitle',
+        'deleteproviderconfirm'
+    ],
+    'filter_oembed'
+);
 
 $output = $PAGE->get_renderer('filter_oembed');
 echo $output->header();

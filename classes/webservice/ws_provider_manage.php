@@ -36,7 +36,7 @@ class ws_provider_manage extends \external_api {
     public static function service_parameters() {
         $parameters = [
             'pid' => new \external_value(PARAM_INT, 'Provider id', VALUE_REQUIRED),
-            'action' => new \external_value(PARAM_ALPHA, 'Action: enable / disable / reload', VALUE_REQUIRED)
+            'action' => new \external_value(PARAM_ALPHA, 'Action: enable / disable / reload / delete', VALUE_REQUIRED)
         ];
         return new \external_function_parameters($parameters);
     }
@@ -50,7 +50,7 @@ class ws_provider_manage extends \external_api {
             'providermodel' => new \external_single_structure(
                 util::define_class_for_webservice('filter_oembed\output\providermodel'),
                 'Provider renderable',
-                VALUE_REQUIRED
+                VALUE_OPTIONAL
             )
         ];
 
@@ -73,17 +73,24 @@ class ws_provider_manage extends \external_api {
             }
         }
 
-        $providerrow = $oembed->get_provider_row($pid);
-        $providermodel = new providermodel($providerrow);
-
-        $visible = intval($providerrow->enabled);
-        if ($action === 'enable' || $action === 'disable') {
-            $visible = $action === 'enable' ? 1 : 0;
+        if ($action === 'delete') {
+            $oembed->delete_provider($pid);
+            return [
+                'visible' => 0
+            ];
+        } else {
+            $providerrow = $oembed->get_provider_row($pid);
+            $providermodel = new providermodel($providerrow);
+            $visible = intval($providerrow->enabled);
+            if ($action === 'enable' || $action === 'disable') {
+                $visible = $action === 'enable' ? 1 : 0;
+            }
+            return [
+                'visible' => $visible,
+                'providermodel' => $providermodel
+            ];
         }
-
-        return [
-            'visible' => $visible,
-            'providermodel' => $providermodel
-        ];
+        
+        throw new coding_exception('Invalid action - '.$action);
     }
 }

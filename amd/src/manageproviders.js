@@ -22,8 +22,9 @@
 /**
  * Oembed provider management module.
  */
-define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/fragment', 'filter_oembed/list'],
-    function($, notification, ajax, templates, fragment, List) {
+define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/fragment', 'core/str',
+    'filter_oembed/modal_confirm', 'filter_oembed/list'],
+    function($, notification, ajax, templates, fragment, str, modalConfirm, List) {
         return {
 
             prevEditId: null,
@@ -101,6 +102,61 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     var action = enabled ? 'disable' : 'enable';
 
                     self.reloadRow(pid, row, action);
+                });
+            },
+
+            /**
+             * Listen for delete action.
+             */
+            listenDelete: function() {
+                var onConfirm = function(dialog, row) {
+                    // Hide dialog.
+                    dialog.hide();
+                    dialog.destroy();
+
+                    var pid = $(row).data('pid');
+
+                    ajax.call([
+                        {
+                            methodname: 'filter_oembed_provider_manage',
+                            args: {
+                                pid: pid,
+                                action: 'delete'
+                            },
+                            done: function(response) {
+                                // Remove row.
+                                $(row).remove();
+                            },
+                            fail: function(response) {
+                                notification.exception(response);
+                            }
+                        }
+                    ], true, true);
+                };
+
+                $('#providermanagement').on('click', '.oembed-provider-actions .filter-oembed-delete', function(e) {
+                    e.preventDefault();
+
+                    var row = $(this).parents('tr')[0];
+                    var providerName = $($(this).parents('td').find('.list-providername')[0]).text();
+
+                    str.get_strings([
+                        {key: 'deleteprovidertitle', component: 'filter_oembed'},
+                        {key: 'deleteproviderconfirm', component: 'filter_oembed', param: providerName},
+                    ]).done(function(strings) {
+                        var delTitle = strings[0];
+                        var delConf = strings[1];
+                        modalConfirm.create(
+                            delTitle,
+                            delConf,
+                            function(dialog) {
+                                onConfirm(dialog, row);
+                            }
+                        );
+                    });
+
+
+
                 });
             },
 
@@ -219,6 +275,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                 new List('providermanagement', options);
 
                 this.listenEnableDisable();
+                this.listenDelete();
                 this.listenEdit();
             }
         };

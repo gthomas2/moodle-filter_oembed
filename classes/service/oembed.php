@@ -575,7 +575,6 @@ class oembed {
             $lookup = ['providername' => $provider->providername];
             $pid = $DB->get_field('filter_oembed', 'id', $lookup);
         } else if (is_int($provider) || is_numeric($provider)) {
-            $lookup = ['id' => $provider];
             $pid = $provider;
         } else {
             throw new \coding_exception('oembed::enable_provider requires either a provider object or a data id integer.');
