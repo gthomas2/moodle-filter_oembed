@@ -374,7 +374,7 @@ class oembed {
             $record->providerurl = $provider['provider_url'];
             $record->endpoints = json_encode($provider['endpoints']);
             $record->source = $source.$provider['plugin'];
-            $record->enabled = 1;   // Enable everything by default.
+            $record->enabled = 0;   // Disable everything by default.
             $record->timecreated = time();
             $record->timemodified = time();
             $DB->insert_record('filter_oembed', $record);
@@ -435,7 +435,7 @@ class oembed {
                 $record->providerurl = $provider['provider_url'];
                 $record->endpoints = json_encode($provider['endpoints']);
                 $record->source = $source;
-                $record->enabled = 1;   // Enable everything by default.
+                $record->enabled = 0;   // Disable everything by default.
                 $record->timecreated = time();
                 $record->timemodified = time();
                 mtrace('      creating '.$record->providername);
@@ -480,7 +480,7 @@ class oembed {
                 $record->providerurl = $provider['provider_url'];
                 $record->endpoints = json_encode($provider['endpoints']);
                 $record->source = $source.$provider['plugin'];
-                $record->enabled = 1;   // Enable everything by default.
+                $record->enabled = 1;   // Enable plugins by default.
                 $record->timecreated = time();
                 $record->timemodified = time();
                 mtrace('      creating '.$record->providername);

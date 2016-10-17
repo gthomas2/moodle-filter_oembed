@@ -90,7 +90,7 @@ class ws_provider_manage extends \external_api {
                 'providermodel' => $providermodel
             ];
         }
-        
+
         throw new coding_exception('Invalid action - '.$action);
     }
 }
