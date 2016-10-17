@@ -85,7 +85,7 @@ function xmldb_filter_oembed_upgrade($oldversion) {
             'pollev' => ['Poll Everywhere', 'http://polleverywhere.com',
                          ['http://polleverywhere.com/polls/*', 'http://polleverywhere.com/multiple_choice_polls/*',
                           'http://polleverywhere.com/free_text_polls/*'], 'http://www.polleverywhere.com/services/oembed'],
-            'o365video' => ['O365 Video', '', [''], ''],
+            'o365video' => ['Office365 Video', '', [''], ''],
             'sway' => ['Sway', 'https://www,sway.com', ['http://www.sway.com/*'], 'https://sway.com/api/v1.0/oembed'],
             'provider_docsdotcom_enabled' => ['Docs', '', [''], ''],
             'provider_powerbi_enabled' => ['Power BI', '', [''], ''],
@@ -93,7 +93,8 @@ function xmldb_filter_oembed_upgrade($oldversion) {
         ];
 
         foreach ($providermap as $oldprovider => $newprovider) {
-            $provider = $DB->get_record('filter_oembed', ['providername' => $newprovider[0]]);
+            // There may be more than one provider with the same name. If that happens, use the first.
+            $provider = $DB->get_record('filter_oembed', ['providername' => $newprovider[0]], '*', IGNORE_MULTIPLE);
 
             // Look for originally hard-coded plugins. If still not present, create it from old code.
             // If it is present, assume that it has since been added to the oembed repo and use that.
