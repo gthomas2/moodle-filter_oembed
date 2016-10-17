@@ -71,7 +71,7 @@ class filter_oembed_service_testcase extends advanced_testcase {
         $this->setAdminUser();
         $oembed = testable_oembed::get_instance();
         $oembed->empty_providers();
-        $oembed->protected_set_providers();
+        $oembed->protected_set_providers('all');
         $this->assertNotEmpty($oembed->providers);
         $this->assert_providers_ok($oembed->providers);
     }
@@ -233,7 +233,6 @@ class filter_oembed_service_testcase extends advanced_testcase {
         // Test by object.
         $providers = $oembed->providers;
         $provider = reset($providers);
-        $this->assertTrue($oembed->providers[$provider->id]->enabled == 1);
         $oembed->disable_provider($provider);
         $this->assertFalse($oembed->providers[$provider->id]->enabled);
 

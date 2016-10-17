@@ -44,6 +44,44 @@ class filter_oembed_testcase extends advanced_testcase {
     protected function setUp() {
         parent::setUp();
         $this->filter = new filter_oembed(context_system::instance(), array());
+        // Ensure all tested providers are enabled.
+        $oembed = \filter_oembed\service\oembed::get_instance('all');
+        foreach ($oembed->providers as $pid => $provider) {
+            switch ($provider->providername) {
+
+                case 'YouTube':
+                    $oembed->enable_provider($provider);
+                    break;
+
+                case 'SoundCloud':
+                    $oembed->enable_provider($provider);
+                    break;
+
+                case 'Office Mix':
+                    $oembed->enable_provider($provider);
+                    break;
+
+                case 'Vimeo':
+                    $oembed->enable_provider($provider);
+                    break;
+
+                case 'Ted':
+                    $oembed->enable_provider($provider);
+                    break;
+
+                case 'Poll Everywhere':
+                    $oembed->enable_provider($provider);
+                    break;
+
+                case 'SlideShare':
+                    $oembed->enable_provider($provider);
+                    break;
+
+                case 'ISSUU':
+                    $oembed->enable_provider($provider);
+                    break;
+            }
+        }
     }
 
     /**
@@ -93,7 +131,7 @@ class filter_oembed_testcase extends advanced_testcase {
         $this->assertRegExp($polleverywhereoutput, $filteroutput, 'Poll everywhare filter fails');
 
         $slideshareoutput = '/.*<iframe .*src="https:\/\/www\.slideshare\.net\/slideshow\/embed_code\/key\/ywBrCQRAE5DZrD".*/';
-        $this->assertRegExp($slideshareoutput, $filteroutput, 'Slidershare filter fails');
+        $this->assertRegExp($slideshareoutput, $filteroutput, 'Slideshare filter fails');
 
         $issuuoutput = '/.*<div data-url="https:\/\/issuu\.com\/thinkuni\/docs\/think_issue12" .*';
         $issuuoutput .= 'class="issuuembed"><\/div>.*/';

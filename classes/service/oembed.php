@@ -367,18 +367,7 @@ class oembed {
 
         // Next, add the plugin providers that exist.
         $providers = self::get_plugin_providers();
-        $source = provider::PROVIDER_SOURCE_PLUGIN;
-        foreach ($providers as $provider) {
-            $record = new \stdClass();
-            $record->providername = $provider['provider_name'];
-            $record->providerurl = $provider['provider_url'];
-            $record->endpoints = json_encode($provider['endpoints']);
-            $record->source = $source.$provider['plugin'];
-            $record->enabled = 0;   // Disable everything by default.
-            $record->timecreated = time();
-            $record->timemodified = time();
-            $DB->insert_record('filter_oembed', $record);
-        }
+        self::update_plugin_providers($providers);
 
         return $warnings;
     }
