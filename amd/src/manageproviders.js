@@ -23,8 +23,8 @@
  * Oembed provider management module.
  */
 define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/fragment', 'core/str',
-    'filter_oembed/modal_confirm', 'filter_oembed/list'],
-    function($, notification, ajax, templates, fragment, str, modalConfirm, List) {
+    'filter_oembed/list'],
+    function($, notification, ajax, templates, fragment, str, List) {
         return {
 
             prevEditId: null,
@@ -109,10 +109,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
              * Listen for delete action.
              */
             listenDelete: function() {
-                var onConfirm = function(dialog, row) {
-                    // Hide dialog.
-                    dialog.hide();
-                    dialog.destroy();
+                var onConfirm = function(row) {
 
                     var pid = $(row).data('pid');
 
@@ -143,16 +140,16 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     str.get_strings([
                         {key: 'deleteprovidertitle', component: 'filter_oembed'},
                         {key: 'deleteproviderconfirm', component: 'filter_oembed', param: providerName},
+                        {key: 'ok', component: 'core'},
+                        {key: 'cancel', component: 'core'}
                     ]).done(function(strings) {
                         var delTitle = strings[0];
                         var delConf = strings[1];
-                        modalConfirm.create(
-                            delTitle,
-                            delConf,
-                            function(dialog) {
-                                onConfirm(dialog, row);
-                            }
-                        );
+                        var ok = strings[2];
+                        var cancel = strings[3];
+                        notification.confirm(delTitle, delConf, ok, cancel, function() {
+                            onConfirm(row);
+                        });
                     });
                 });
             },
