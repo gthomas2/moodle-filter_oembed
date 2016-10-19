@@ -124,7 +124,7 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                                 pid: pid,
                                 action: 'delete'
                             },
-                            done: function(response) {
+                            done: function() {
                                 // Remove row.
                                 $(row).remove();
                             },
