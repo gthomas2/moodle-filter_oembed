@@ -154,11 +154,6 @@ class provider {
             foreach ($regexarr as $regex) {
                 if (preg_match($regex, $text)) {
                     // If {format} is in the URL, replace it with the actual format.
-
-                    /* $url2 = '&format='.$endpoint->formats[0];
-                       $url = str_replace('{format}', $endpoint->formats[0], $endpoint->url) .
-                              '?url='.$text.$url2; */
-
                     // At the moment, we're only supporting JSON, so this must be JSON.
                     $requesturl = str_replace('{format}', 'json', $endpoint->url) .
                            '?url=' . urlencode($text) . '&format=json';
@@ -210,7 +205,7 @@ class provider {
         }
 
         foreach ($schemes as $scheme) {
-            // "http[s]:" may not be present, so flag it as a non-capturing subpattern with "(?:".
+            // An "http[s]:" may not be present, so flag it as a non-capturing subpattern with "(?:".
             $url1 = preg_split('/((?:https?:)?\/\/)/', $scheme);
             $url2 = preg_split('/\//', $url1[1]);
             $regexarr = [];

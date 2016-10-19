@@ -50,35 +50,35 @@ class filter_oembed_testcase extends advanced_testcase {
             switch ($provider->providername) {
 
                 case 'YouTube':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
 
                 case 'SoundCloud':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
 
                 case 'Office Mix':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
 
                 case 'Vimeo':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
 
                 case 'Ted':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
 
                 case 'Poll Everywhere':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
 
                 case 'SlideShare':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
 
                 case 'ISSUU':
-                    $oembed->enable_provider($provider);
+                    $oembed->enable_provider($pid);
                     break;
             }
         }

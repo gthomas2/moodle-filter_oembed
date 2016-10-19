@@ -114,7 +114,7 @@ class providermodel implements \renderable {
         $PAGE->set_context(\context_system::instance());
         $output = $PAGE->get_renderer('filter_oembed', null, RENDERER_TARGET_GENERAL);
 
-        $provider = (object) $provider;
+        $provider = (object)$provider;
 
         $this->pid = $provider->id;
         $this->providername = $provider->providername;

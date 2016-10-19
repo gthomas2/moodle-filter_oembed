@@ -138,7 +138,7 @@ class oembed {
                 $output = $completeoutput;
                 break;
             } else if ($requesturl = $provider->get_oembed_request($text)) {
-                // Get additional url params out of original url
+                // Get additional url params out of original url.
                 $parsed = parse_url($text);
                 $query = isset($parsed['query']) ? $parsed['query'] : '';
                 $params = [];
@@ -255,7 +255,6 @@ class oembed {
             // Update all existing provider data.
             try {
                 $providers = self::download_providers();
-                $source = provider::PROVIDER_SOURCE_DOWNLOAD . 'http://oembed.com/providers.json';
             } catch (Exception $e) {
                 $warnings[] = $e->getMessage();
                 $providers = [];
@@ -267,7 +266,6 @@ class oembed {
         }
 
         // If no providers were retrieved, log the issue.
-        // self::log_issues($warnings);
         return $warnings;
     }
 
@@ -346,7 +344,7 @@ class oembed {
      *
      */
     protected static function create_initial_provider_data() {
-        global $CFG, $DB;
+        global $CFG;
 
         $warnings = [];
         try {
@@ -632,7 +630,6 @@ class oembed {
             $lookup = ['providername' => $provider->providername];
             $pid = $DB->get_field('filter_oembed', 'id', $lookup);
         } else if (is_int($provider) || is_numeric($provider)) {
-            $lookup = ['id' => $provider];
             $pid = $provider;
         } else {
             throw new \coding_exception('oembed::enable_provider requires either a provider object or a data id integer.');

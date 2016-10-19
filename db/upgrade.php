@@ -131,7 +131,6 @@ function xmldb_filter_oembed_upgrade($oldversion) {
 
         // Remove other configuration settings no longer used.
         unset_config('providersrestrict', 'filter_oembed');
-        // unset_config('retrylimit', 'filter_oembed'); // Check if we really want to remove this.
 
         // Oembed savepoint reached.
         upgrade_plugin_savepoint(true, 2016070501, 'filter', 'oembed');

@@ -71,7 +71,7 @@ class filter_oembed extends moodle_text_filter {
         $filtered = $text; // We need to return the original value if regex fails!
         if ($targettag == 'divtag') {
             $search = '/\<div\s[^\>]*data-oembed-href="(.*?)"(.*?)>(.*?)\<\/div\>/';
-        } else { // if ($targettag == 'atag').
+        } else { // Using 'atag'.
             $search = '/\<a\s[^\>]*href="(.*?)"(?:.*?)>(?:.*?)\<\/a\>/is';
         }
 

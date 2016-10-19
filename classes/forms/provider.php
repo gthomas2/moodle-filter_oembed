@@ -36,7 +36,7 @@ class provider extends moodleform {
         $mform = $this->_form;
 
         // Form configuration.
-        $config = (object) [
+        $config = (object)[
             'id'           => ['required' => true, 'type' => 'hidden', 'paramtype' => PARAM_INT],
             'providername' => ['required' => true, 'type' => 'text', 'paramtype' => PARAM_TEXT],
             'providerurl'  => ['required' => true, 'type' => 'text', 'paramtype' => PARAM_URL],
@@ -55,7 +55,7 @@ class provider extends moodleform {
 
         // Define form according to configuration.
         foreach ($config as $fieldname => $row) {
-            $row = (object) $row;
+            $row = (object)$row;
             if ($row->type == 'hidden') {
                 $fieldlabel = '';
             } else {

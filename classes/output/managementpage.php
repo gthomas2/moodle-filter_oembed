@@ -43,7 +43,7 @@ class managementpage implements \renderable, \templatable {
      */
     public function __construct(array $content = array()) {
         if (!empty($content)) {
-            foreach ($content as $key => $row) {
+            foreach ($content as $row) {
                 $this->rows[] = $row;
             }
         }

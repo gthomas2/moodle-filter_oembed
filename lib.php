@@ -52,7 +52,7 @@ function filter_oembed_output_fragment_provider($args) {
             if (!$data) {
                 throw new coding_exception('Invalid "pid" param', $args['pid']);
             }
-            $data = (array) $data;
+            $data = (array)$data;
         }
     }
 

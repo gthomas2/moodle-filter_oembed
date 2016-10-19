@@ -54,7 +54,7 @@ class docsdotcom extends provider {
         $requesturl = '';
         // Get the regex arrauy to look for matching schemes.
         $regex = $this->endpoints_regex(new endpoint());
-        if (preg_match($regex, $text, $matches)) {
+        if (preg_match($regex, $text, $matched)) {
             $params = [
                 'url' => $matched[1]. $matched[3] . '/' . $matched[4] . '/' . $matched[5] . '/' . $matched[6],
                 'format' => 'json',
