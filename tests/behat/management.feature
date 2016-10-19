@@ -33,12 +33,12 @@ Feature: Admin can use the provider management page to view / edit / enable / di
     When I filter the provider list to "Vimeo"
     Then I should not see "YouTube" in the "oembedproviders" "table"
     And I should see "Vimeo" in the "oembedproviders" "table"
-    And the provider "Vimeo" is enabled
+    And the provider "Vimeo" is disabled
     # Test enable / disable
     When I "toggle" "Vimeo" provider
-    Then the provider "Vimeo" is disabled
-    When I "toggle" "Vimeo" provider
     Then the provider "Vimeo" is enabled
+    When I "toggle" "Vimeo" provider
+    Then the provider "Vimeo" is disabled
     # Test edit
     When I edit the provider "Vimeo" with the values:
     | Provider Name | Zimeo |

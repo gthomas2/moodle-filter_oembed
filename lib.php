@@ -71,7 +71,7 @@ function filter_oembed_output_fragment_provider($args) {
     if (!empty($ajaxdata)) {
         if ($form->is_validated()) {
             // If editing a downloaded provider, create a new local one and disable the download one.
-            $sourcetype = \filter_oembed\provider\provider::source_type($ajaxdata['source']) ;
+            $sourcetype = \filter_oembed\provider\provider::source_type($ajaxdata['source']);
             if ($sourcetype == \filter_oembed\provider\provider::PROVIDER_SOURCE_DOWNLOAD) {
                 $newpid = $oembed->copy_provider_to_local($ajaxdata);
                 if ($newpid) {
