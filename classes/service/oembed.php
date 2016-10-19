@@ -604,7 +604,7 @@ class oembed {
     /**
      * Copy downloaded provider row to new local row (or update).
      * @param array|object $providerdata
-     * @return bool
+     * @return bool|int
      */
     public function copy_provider_to_local($providerdata) {
         global $DB;
@@ -616,7 +616,7 @@ class oembed {
             return false;
         }
         $providerdata['source'] = $newsource;
-        return $DB->insert_record('filter_oembed', $providerdata, false);
+        return $DB->insert_record('filter_oembed', $providerdata, true);
     }
 
     /**

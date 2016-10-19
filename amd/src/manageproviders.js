@@ -65,8 +65,9 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
 
             /**
              * Reload all providers.
+             * @param {function|null} callback
              */
-            reloadProviders: function() {
+            reloadProviders: function(callback) {
                 ajax.call([
                     {
                         methodname: 'filter_oembed_providers',
@@ -79,6 +80,9 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                                 .done(function(result) {
                                     var resultHtml = $($.parseHTML(result)).html();
                                     $('#providermanagement').html(resultHtml);
+                                    if (typeof(callback) === 'function') {
+                                        callback();
+                                    }
                                 });
                         },
                         fail: function(response) {
@@ -231,20 +235,39 @@ define(['jquery', 'core/notification', 'core/ajax', 'core/templates', 'core/frag
                     $(form).trigger('save-form-state');
                     var data = $(form).serialize();
                     updateProviderForm(pid, data, function() {
-                        var successSel = '#oembed-display-providers_' + pid + ' .oembed-provider-details div.alert-success';
-                        if ($(successSel).length) {
-                            var successHTML = $(successSel)[0].outerHTML;
+                        var detailsSel = '#oembed-display-providers_' + pid + ' .oembed-provider-details';
+                        var successSel = detailsSel + ' div.alert-success';
+                        var successEl = $(successSel);
+
+                        if (successEl.length) {
+                            var successHTML = successEl[0].outerHTML;
                             turnEditingOff(pid);
+
+                            // Get new provider id and set pid to it so correct row is targeted on reload.
+                            if (source.indexOf('download::') > -1) {
+                                var newProviderSel = detailsSel + ' .js-oembed-newprovider';
+                                var newProviderEl = $(newProviderSel);
+                                if (newProviderEl.length) {
+                                    pid = newProviderEl.data('newproviderid');
+                                }
+                            }
+
+                            /**
+                             * On reloading providers or single row append success HTML.
+                             */
+                            var onReload = function() {
+                                var rowcell = $('#oembed-display-providers_' + pid + ' td');
+                                $(rowcell).append(successHTML);
+                                $(rowcell).find(' div.alert-success').attr('tabindex', -1);
+                                $(rowcell).find(' div.alert-success').focus();
+                            };
 
                             if (source.indexOf('download::') > -1) {
                                 // When a downloaded provider is saved, a new one is created as a local provider, so we
                                 // need to reload the full list.
-                                self.reloadProviders();
+                                self.reloadProviders(onReload);
                             } else {
-                                self.reloadRow(pid, row, 'reload', function() {
-                                    var rowcell = $('#oembed-display-providers_' + pid + ' td');
-                                    $(rowcell).append(successHTML);
-                                });
+                                self.reloadRow(pid, row, 'reload', onReload);
                             }
                         }
                     });

@@ -71,11 +71,14 @@ function filter_oembed_output_fragment_provider($args) {
     if (!empty($ajaxdata)) {
         if ($form->is_validated()) {
             // If editing a downloaded provider, create a new local one and disable the download one.
-            if (\filter_oembed\provider\provider::source_type($ajaxdata['source']) == \filter_oembed\provider\provider::PROVIDER_SOURCE_DOWNLOAD) {
-                $success = $oembed->copy_provider_to_local($ajaxdata);
-                if ($success) {
+            $sourcetype = \filter_oembed\provider\provider::source_type($ajaxdata['source']) ;
+            if ($sourcetype == \filter_oembed\provider\provider::PROVIDER_SOURCE_DOWNLOAD) {
+                $newpid = $oembed->copy_provider_to_local($ajaxdata);
+                if ($newpid) {
                     $msg = $output->notification(get_string('copytolocal', 'filter_oembed', $ajaxdata['providername']),
                         'notifysuccess');
+                    // Return an empty div with the new provider id in it so we can target it later with the message in $msg.
+                    return '<div class="js-oembed-newprovider" data-newproviderid = "'.$newpid.'"></div>'.$msg;
                 } else {
                     $msg = $output->notification(get_string('nocopytolocal', 'filter_oembed', $ajaxdata['providername']),
                         'notifyproblem');
@@ -90,6 +93,5 @@ function filter_oembed_output_fragment_provider($args) {
             }
         }
     }
-
     return $form->render().$msg;
 }
