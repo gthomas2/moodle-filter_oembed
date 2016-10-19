@@ -56,7 +56,7 @@ class powerbi extends provider {
      */
     public function filter($text) {
         // PowerBI depends on 'local_o365' installed. If it isn't, return false.
-        if(\core_plugin_manager::instance()->get_plugin_info('local_o365') == null) {
+        if (\core_plugin_manager::instance()->get_plugin_info('local_o365') == null) {
             return false;
         }
 

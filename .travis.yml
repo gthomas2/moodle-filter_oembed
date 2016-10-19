@@ -13,8 +13,8 @@ php:
 env:
  global:
   - MOODLE_BRANCH=master
-  - IGNORE_PATHS=amd/src/list.js
-
+  - IGNORE_PATHS=amd/src/list.js,provider/powerbi/yui/*,Gruntfile.js
+  - IGNORE_PATHS=
 
  matrix:
   - DB=pgsql
