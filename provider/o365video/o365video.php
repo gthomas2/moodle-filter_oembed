@@ -44,6 +44,34 @@ class o365video extends provider {
     }
 
     /**
+     * Main filter function. This should only be used by subplugins, and it is preferable
+     * to not use it even then. Ideally, a provider plugin should provide a JSON oembed provider
+     * response (http://oembed.com/#section2.3) and let the main filter handle the HTML. Use this
+     * only if the HTML must be determined by the plugin. If implemented, ensure FALSE is returned
+     * if no filtering occurred.
+     *
+     * @param string $text Incoming text.
+     * @return string Filtered text, or false for no changes.
+     */
+    public function filter($text) {
+        // PowerBI depends on 'local_o365' installed. If it isn't, return false.
+        if(\core_plugin_manager::instance()->get_plugin_info('local_o365') == null) {
+            return false;
+        }
+
+        $newtext = '';
+        $odburl = get_config('local_o365', 'odburl');
+        if (!empty($odburl)) {
+            $odburl = preg_replace('/^https?:\/\//', '', $odburl);
+            $odburl = preg_replace('/\/.*/', '', $odburl);
+            $trimedurl = preg_replace("/-my/", "", $odburl);
+            $search = '/(https?:\/\/)('.$odburl.'|'.$trimedurl.')\/(.*)/is';
+            $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
+        }
+        return (empty($newtext) || ($newtext == $text)) ? false : $newtext;
+    }
+
+    /**
      * Get the replacement oembed HTML.
      *
      * @param array $matched Matched URL.
@@ -93,28 +121,5 @@ class o365video extends provider {
             \local_o365\utils::debug('filter_oembed share point execption: '.$e->getMessage(), 'filter_oembed_o365videocallback', $e);
         }
         return $matched[0];
-    }
-
-    /**
-     * Main filter function. This should only be used by subplugins, and it is preferable
-     * to not use it even then. Ideally, a provider plugin should provide a JSON oembed provider
-     * response (http://oembed.com/#section2.3) and let the main filter handle the HTML. Use this
-     * only if the HTML must be determined by the plugin. If implemented, ensure FALSE is returned
-     * if no filtering occurred.
-     *
-     * @param string $text Incoming text.
-     * @return string Filtered text, or false for no changes.
-     */
-    public function filter($text) {
-        $newtext = '';
-        $odburl = get_config('local_o365', 'odburl');
-        if (!empty($odburl)) {
-            $odburl = preg_replace('/^https?:\/\//', '', $odburl);
-            $odburl = preg_replace('/\/.*/', '', $odburl);
-            $trimedurl = preg_replace("/-my/", "", $odburl);
-            $search = '/(https?:\/\/)('.$odburl.'|'.$trimedurl.')\/(.*)/is';
-            $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
-        }
-        return (empty($newtext) || ($newtext == $text)) ? false : $newtext;
     }
 }

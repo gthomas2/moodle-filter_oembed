@@ -42,4 +42,4 @@ Feature: Admin can use the provider management page to view / edit / enable / di
     # Test edit
     When I edit the provider "Vimeo" with the values:
     | Provider Name | Zimeo |
-    Then I should see "Created new local provider definition for Zimeo." in the "oembedproviders" "table"
+    Then I should see "Created new local provider definition for \"Zimeo\"." in the "oembedproviders" "table"

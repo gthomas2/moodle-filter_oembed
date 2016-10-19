@@ -45,30 +45,6 @@ class powerbi extends provider {
     }
 
     /**
-     * Get the replacement oembed HTML.
-     *
-     * @param array $matched Matched URL.
-     * @return string The replacement text/HTML.
-     */
-    public function get_replacement($matched) {
-        $httpclient = new \local_o365\httpclient();
-        $clientdata = \local_o365\oauth2\clientdata::instance_from_oidc();
-        $resource = \filter_oembed\provider\powerbi\rest\powerbi::get_resource();
-        $token = \local_o365\oauth2\systemtoken::instance(null, $resource, $clientdata, $httpclient);
-        if (!empty($token)) {
-            $powerbi = new \filter_oembed\provider\powerbi\rest\powerbi($token, $httpclient);
-            if ($matched[6] == 'reports') {
-                $reportsdata = $powerbi->apicall('get', 'reports');
-                $embedurl = $powerbi->getreportoembedurl($matched[7], $reportsdata);
-                $embedhtml = $this->getembedhtml($embedurl);
-                $embedhtml .= '<input type="hidden" class="token" value="' . $token->get_token(). '">';
-                return $embedhtml;
-            }
-        }
-        return $matched[0];
-    }
-
-    /**
      * Main filter function. This should only be used by subplugins, and it is preferable
      * to not use it even then. Ideally, a provider plugin should provide a JSON oembed provider
      * response (http://oembed.com/#section2.3) and let the main filter handle the HTML. Use this
@@ -79,9 +55,45 @@ class powerbi extends provider {
      * @return string Filtered text, or false for no changes.
      */
     public function filter($text) {
+        // PowerBI depends on 'local_o365' installed. If it isn't, return false.
+        if(\core_plugin_manager::instance()->get_plugin_info('local_o365') == null) {
+            return false;
+        }
+
         $search = '/(https?:\/\/(app\.)?)(powerbi\.com)\/(.+?)\/(.+?)\/(.+?)\/(.+?)\/(.+?)/is';
         $newtext = preg_replace_callback($search, [$this, 'get_replacement'], $text);
         return (empty($newtext) || ($newtext == $text)) ? false : $newtext;
+    }
+
+    /**
+     * Get the replacement oembed HTML.
+     *
+     * @param array $matched Matched URL.
+     * @return string The replacement text/HTML.
+     */
+    public function get_replacement($matched) {
+        global $CFG;
+        require_once($CFG->dirroot . '/filter/oembed/provider/powerbi/rest/powerbi.php');
+
+        $httpclient = new \local_o365\httpclient();
+        try {
+            $clientdata = \local_o365\oauth2\clientdata::instance_from_oidc();
+            $resource = \filter_oembed\provider\powerbi\rest\powerbi::get_resource();
+            $token = \local_o365\oauth2\systemtoken::instance(null, $resource, $clientdata, $httpclient);
+            if (!empty($token)) {
+                $powerbi = new \filter_oembed\provider\powerbi\rest\powerbi($token, $httpclient);
+                if ($matched[6] == 'reports') {
+                    $reportsdata = $powerbi->apicall('get', 'reports');
+                    $embedurl = $powerbi->getreportoembedurl($matched[7], $reportsdata);
+                    $embedhtml = $this->getembedhtml($embedurl);
+                    $embedhtml .= '<input type="hidden" class="token" value="' . $token->get_token(). '">';
+                    return $embedhtml;
+                }
+            }
+        } catch (\Exception $e) {
+            \local_o365\utils::debug('filter_oembed oauth2 exeception: '.$e->getMessage(), 'filter_oembed_powerbicallback', $e);
+        }
+        return $matched[0];
     }
 
     private function getembedhtml($embedurl) {
