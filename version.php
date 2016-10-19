@@ -29,5 +29,5 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->version   = 2016070511;
 $plugin->requires  = 2016081700;
 $plugin->component = 'filter_oembed';
-$plugin->maturity  = MATURITY_ALPHA;
+$plugin->maturity  = MATURITY_RC;
 $plugin->release   = '3.2.0.0';
