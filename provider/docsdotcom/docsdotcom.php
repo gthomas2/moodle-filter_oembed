@@ -37,8 +37,13 @@ class docsdotcom extends provider {
         if ($data === null) {
             $data = [
                 'providername' => 'Docs',
-                'providerurl' => '',
-                'endpoints' => [],
+                'providerurl' => 'https://docs.com',
+                'endpoints' => [
+                    ['schemes' => ['https://docs.com/*', 'https://www.docs.com/*'],
+                     'url' => 'https:\/\/docs.com\/api\/oembed',
+                     'formats' => ['json']
+                    ]
+                ]
             ];
         }
         parent::__construct($data);

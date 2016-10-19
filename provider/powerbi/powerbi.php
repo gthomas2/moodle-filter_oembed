@@ -38,7 +38,13 @@ class powerbi extends provider {
             $data = [
                 'providername' => 'Power BI',
                 'providerurl' => '',
-                'endpoints' => [],
+                'endpoints' => [
+                    ['schemes' => ['https://powerbi.com/*/*/*/*/*',
+                                   'https://app.powerbi.com/*/*/*/*/*'],
+                     'url' => '',
+                     'formats' => ['json']
+                    ]
+                ]
             ];
         }
         parent::__construct($data);

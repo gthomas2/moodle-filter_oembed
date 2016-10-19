@@ -37,8 +37,14 @@ class officeforms extends provider {
         if ($data === null) {
             $data = [
                 'providername' => 'Office Forms',
-                'providerurl' => '',
-                'endpoints' => [],
+                'providerurl' => 'https://forms.office.com/',
+                'endpoints' => [
+                    ['schemes' => ['https://forms.office.com/Pages/ResponsePage.aspx?id=*',
+                                   'https://www.forms.office.com/Pages/ResponsePage.aspx?id=*'],
+                     'url' => 'https://forms.office.com/Pages/ResponsePage.aspx?id=*&embed=true',
+                     'formats' => ['json']
+                    ]
+                ]
             ];
         }
         parent::__construct($data);
