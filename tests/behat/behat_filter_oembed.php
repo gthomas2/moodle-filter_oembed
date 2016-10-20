@@ -40,26 +40,34 @@ class behat_filter_oembed extends behat_base {
     }
 
     /**
-     * Click on a provider action.
-     *
-     * @Given /^I "(?P<action_string>(?:[^"]|\\")*)" "(?P<provider_string>[^"]*)" provider$/
-     *
-     * @param string $action
+     * Provider action.
      * @param string $provider
-     * @return void
+     * @param string $actionclass
+     * @throws \Behat\Mink\Exception\ExpectationException
      */
-    public function i_click_on_provider_action($action, $provider) {
-        if ($action === 'toggle') {
-            $xpath = $this->provider_action_xpath($provider, 'filter-oembed-visibility');
-        } else if ($action === 'edit') {
-            $xpath = $this->provider_action_xpath($provider, 'filter-oembed-edit');
-        } else {
-            throw new coding_exception('Invalid provider action '.$action);
-        }
-
+    protected function provider_action($provider, $actionclass) {
+        $xpath = $this->provider_action_xpath($provider, $actionclass);
         $node = $this->find('xpath', $xpath);
         $this->ensure_node_is_visible($node);
         $node->click();
+    }
+
+    /**
+     * Toggle provider enable status.
+     * @Given /^I toggle the provider "(?P<provider_string>[^"]*)"$/
+     * @param string $provider
+     */
+    public function i_toggle_provider($provider) {
+        $this->provider_action($provider, 'filter-oembed-visibility');
+    }
+
+    /**
+     * Click edit action for provider.
+     * @Given /^I edit the provider "(?P<provider_string>[^"]*)"$/
+     * @param string $provider
+     */
+    public function i_edit_provider($provider) {
+        $this->provider_action($provider, 'filter-oembed-edit');
     }
 
     /**
@@ -130,8 +138,8 @@ class behat_filter_oembed extends behat_base {
      * @param string $provider
      * @param TableNode $table
      */
-    public function i_edit_provider($provider, TableNode $table) {
-        $this->i_click_on_provider_action('edit', $provider);
+    public function i_edit_provider_with_values($provider, TableNode $table) {
+        $this->i_edit_provider($provider);
 
         if (!$data = $table->getRowsHash()) {
             return;
