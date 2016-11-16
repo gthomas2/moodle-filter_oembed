@@ -69,9 +69,6 @@ class provider extends moodleform {
             if ($row->required) {
                 $mform->addRule($fieldname, get_string('requiredfield', 'filter_oembed', $fieldlabel), 'required');
             }
-            if ($sourcetype == 'plugin::') {
-                $elem->freeze();
-            }
         }
 
         $mform->addElement('static', 'sourcetext', get_string('source', 'filter_oembed'));
