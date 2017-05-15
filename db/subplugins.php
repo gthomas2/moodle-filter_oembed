@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * @package filter_oembed
  * @author Mike Churchward <mike.churchward@poetgroup.org>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @copyright 2016 The POET Group
  */
+
+defined('MOODLE_INTERNAL') || die();
 
 // Note: Filters do not currently support subplugins, so this file is here
 // in case they ever do.

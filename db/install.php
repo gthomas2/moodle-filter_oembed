@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle-oembed-Filter.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Filter for component 'filter_oembed'
  *
@@ -26,6 +24,8 @@ defined('MOODLE_INTERNAL') || die();
  * Screencast (Mark Schall)
  * Soundcloud (Troy Williams)
  */
+
+defined('MOODLE_INTERNAL') || die();
 
 use filter_oembed\service\oembed;
 /**

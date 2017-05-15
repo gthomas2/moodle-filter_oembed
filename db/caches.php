@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * oEmbed cache definitions
  *
@@ -23,6 +21,9 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2016 Blackboard Inc.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+
 $definitions = array(
     'embeddata' => array(
         'mode' => cache_store::MODE_APPLICATION,
