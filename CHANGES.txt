@@ -1,5 +1,7 @@
 Release Notes
 
+For release 3.3.0, an xpath change was required in the Behat tests in order to get Behat to pass due to changes in Moodle's output.
+
 For release 3.2, the plugin was rewritten to utilize the oembed provider definitions from http://oembed.com/providers.json.
 The previous provider definitions that were hardcoded, but not present in the oembed provider list, were added as "local"
 definitions to avoid regression errors.

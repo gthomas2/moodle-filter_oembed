@@ -25,10 +25,14 @@
 
 namespace filter_oembed\provider;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Base class for oembed providers and plugins. Plugins should extend this class.
  * If "filter" is provided, there is nothing else a plugin needs to implement.
  * Plugins can instead / additionally override "get_oembed_request", "oembed_response" and "endpoints_regex".
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2016 The POET Group
  */
 class provider {
 
