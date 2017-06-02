@@ -21,6 +21,8 @@
  * @copyright 2016 The POET Group
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 // Note: Filters do not currently support subplugins, so this file is here
 // in case they ever do.
 $subplugins = [

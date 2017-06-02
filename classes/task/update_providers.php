@@ -22,6 +22,9 @@
  */
 
 namespace filter_oembed\task;
+
+defined('MOODLE_INTERNAL') || die();
+
 use filter_oembed\service\oembed;
 
 class update_providers extends \core\task\scheduled_task {

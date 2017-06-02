@@ -32,6 +32,8 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Class providermodel
  * @package filter_oembed\output
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2016 The POET Group
  */
 class providermodel implements \renderable {
 

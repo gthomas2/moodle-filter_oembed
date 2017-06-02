@@ -76,11 +76,10 @@ class behat_filter_oembed extends behat_base {
      * @param bool $enabled
      */
     protected function ensure_provider_status($provider, $enabled = true) {
-        $img = $enabled ? 'hide' : 'show';
+        $action = $enabled ? 'disable' : 'enable';
         $xpath = $this->provider_action_xpath($provider, 'filter-oembed-visibility');
-        $xpath .= '/img[contains(@src,\'t/' . $img . '\')]';
+        $xpath = substr($xpath, 0, -1) . 'and contains(@href,"action='.$action.'")]';
         $this->ensure_element_exists($xpath, 'xpath_element');
-
     }
 
     /**

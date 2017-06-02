@@ -23,6 +23,8 @@
 
 namespace filter_oembed\provider\powerbi\rest;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * API client for Power BI.
  */
